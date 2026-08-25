@@ -1,0 +1,5 @@
+# dsh-mobile-xc bundle patch.
+# 由 `dsh plugin --profile web add dsh-mobile-xc` 自动挂载，无需手改 cordis.patch.yml。
+- insert:
+    - id: mobile-xc
+      name: dsh-mobile-xc
