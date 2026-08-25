@@ -174,13 +174,13 @@ export function installXcPluginCard(ctx: unknown, react: Reactish): void {
             type: 'button',
             className: 'YyYd_a_header',
             'aria-expanded': open ? 'true' : 'false',
-            'aria-label': (open ? 'Collapse' : 'Expand') + ': dsh-mobile-xc',
+            'aria-label': (open ? 'Collapse' : 'Expand') + ': 移动端适配',
             onClick: () => setOpen(!open),
           },
           react.createElement(
             'span',
             { className: 'YyYd_a_headText' },
-            react.createElement('span', { className: 'YyYd_a_name' }, 'dsh-mobile-xc'),
+            react.createElement('span', { className: 'YyYd_a_name' }, '移动端适配'),
             react.createElement('span', { className: 'YyYd_a_description' }, '移动端适配选项：跟手拖拽 / dshmarket 兼容 / PWA'),
           ),
           react.createElement(
