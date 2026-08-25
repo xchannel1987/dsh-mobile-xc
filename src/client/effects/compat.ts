@@ -6,7 +6,7 @@
  *  - 任务幂等；dispose 移除标记。
  */
 import type { ReconcilerTask } from '../core/reconciler-core.ts'
-import { COMPAT } from '../config.ts'
+import { getConfig } from '../config.ts'
 
 export function createMarketNavTask(): ReconcilerTask {
   let present = false
@@ -17,7 +17,7 @@ export function createMarketNavTask(): ReconcilerTask {
       const now = document.querySelector('[data-dsh-market-root]') !== null
       if (now === present) return
       present = now
-      if (COMPAT.dshmarketNavFix) {
+      if (getConfig().dshmarketNavFix) {
         document.documentElement.toggleAttribute('data-xc-market-fix', now)
       }
     },

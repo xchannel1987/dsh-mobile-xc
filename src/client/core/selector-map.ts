@@ -219,14 +219,26 @@ export function formatCanaryReport(
   if (!structural.shellOverlay) notes.push('缺少 [data-shell-overlay]（shell 结构可能是新版）')
   if (!structural.composerSlot) notes.push('缺少 composer data-slot（composer 可能是新版）')
   if (!structural.frameShape) notes.push('frame 直系子结构异常（抽屉定位可能失效）')
-  for (const entry of hashed.missing) {
+  if (hashed.missing.length > 0 && hashed.hits === 0) {
+    // 一条都没命中：真正的结构失配，逐条列出
+    for (const entry of hashed.missing) {
+      notes.push(
+        entry.selector +
+          ' 未命中（登记于 dsh ' +
+          entry.dshVersion +
+          '，兜底：' +
+          entry.fallback +
+          '）',
+      )
+    }
+  } else if (hashed.missing.length > 0 && hashed.hits > 0) {
+    // 部分命中：多为「当前页面状态未渲染该组件」（如无会话时的 composer 简化态），不算失配
     notes.push(
-      entry.selector +
-        ' 未命中（登记于 dsh ' +
-        entry.dshVersion +
-        '，兜底：' +
-        entry.fallback +
-        '）',
+      '部分登记选择器未渲染（命中 ' +
+        hashed.hits +
+        '/' +
+        hashed.declared +
+        '），可能仅因当前页面状态未挂载该组件，已生效能力不受影响',
     )
   }
   if (notes.length === 0) return null

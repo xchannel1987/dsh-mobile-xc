@@ -8,11 +8,23 @@ import type { Context } from '@deepseek-ai/cordis'
 import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { HEAD_EXTRA, MANIFEST_JSON, SW_SOURCE } from './pwa.ts'
+import { installSettingsSection, settingsNamespace } from '@deepseek-ai/dsh-settings'
+import z from '@deepseek-ai/schemastery'
 
 export const name = 'dsh-mobile-xc'
 export const inject = ['webServer'] as const
 
 const ICON_SIZES = ['192', '512', '180'] as const
+
+/** 插件配置命名空间（dshmarket 同款：设置 -> 插件 -> dsh-mobile-xc 配置卡）。 */
+export const XC_SETTINGS_NS = settingsNamespace('dsh-mobile-xc')
+
+/** 移动端配置 schema：跟手拖拽 / dshmarket 兼容修复 / PWA。 */
+export const XcSettings = z.object({
+  dragEnabled: z.boolean().default(false),
+  dshmarketNavFix: z.boolean().default(true),
+  pwaEnabled: z.boolean().default(true),
+})
 
 interface ResFace {
   writeHead(code: number, headers?: Record<string, string>): void
@@ -40,6 +52,18 @@ const readIcon = (size: string) =>
   readFile(fileURLToPath(new URL('../assets/pwa/icon-' + size + '.png', import.meta.url)))
 
 export function apply(ctx: Context): void {
+  // 插件配置卡（设置 -> 插件 -> dsh-mobile-xc）；无 settings 服务时静默跳过
+  installSettingsSection(
+    ctx,
+    XC_SETTINGS_NS,
+    XcSettings,
+    {},
+    {
+      setSource: () => {},
+      onChange: () => {},
+    },
+  )
+
   const ws = (ctx as unknown as { webServer?: WsFace }).webServer
   if (ws === undefined) return
   const effect = ctx.effect.bind(ctx)

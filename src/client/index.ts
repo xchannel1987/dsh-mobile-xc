@@ -9,6 +9,8 @@
  */
 import type { ClientContext } from '@deepseek-ai/dsh-client-runtime/client'
 import { MOBILE_CSS } from './styles/index.ts'
+import { getConfig, setConfig, onConfigChange, resolveSettingsValue } from './config.ts'
+import type { XcConfig } from './config.ts'
 import { installMobileEffect, MOBILE_QUERY } from './breakpoints.ts'
 import { checkHashedSelectors, checkStructuralAnchors, formatCanaryReport } from './core/selector-map.ts'
 import { createReconcilerCore } from './core/reconciler-core.ts'
@@ -17,6 +19,7 @@ import { installOverlayInteractions, makeSidebarToggle } from './effects/drawer.
 import { installMobileGesture } from './effects/gesture.ts'
 import { registerDrawerTasks, registerComposerTasks, registerCompatTasks } from './effects/tasks.ts'
 import { installFocusGuard } from './effects/focus-guard.ts'
+import { installXcPluginCard } from './effects/plugin-card.ts'
 import { installPhoneChrome } from './effects/phone-chrome.ts'
 import { installComposerAutoCollapse } from './effects/composer.ts'
 
@@ -38,15 +41,21 @@ window.__ModuleLoader__.load({
     const exports = module.exports
     Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' })
     // react 由 loader 提供（组件/插槽使用）；当前直接 DOM 注入，仅建立依赖关系。
-    require('react') as typeof import('react')
+    const react = require('react') as typeof import('react')
 
-    /** 预留设置项：一键关闭 PWA（localStorage 标记 + 卸载已注册 SW）。 */
+    /** 启用 PWA：清除关闭标记并重新注册 SW。 */
     const disablePwa = (): void => {
       if (typeof localStorage !== 'undefined') localStorage.setItem('dsh-mobile-xc.pwa', 'off')
       if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
         void navigator.serviceWorker.getRegistrations().then((regs) => {
           for (const reg of regs) void reg.unregister()
         })
+      }
+    }
+    const enablePwa = (): void => {
+      if (typeof localStorage !== 'undefined') localStorage.removeItem('dsh-mobile-xc.pwa')
+      if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
+        void navigator.serviceWorker.register('/sw.js', { scope: '/', updateViaCache: 'none' }).catch(() => {})
       }
     }
 
@@ -58,6 +67,76 @@ window.__ModuleLoader__.load({
         }
         return () => {}
       }, 'dsh-mobile-xc: pwa flag')
+
+      // 0.1) 插件配置命名空间订阅（dshmarket 同款：设置 -> 插件 -> dsh-mobile-xc）。
+      //      句柄形状：bind({namespace}) -> { getSnapshot(), set/unset, subscribe(listener) }；
+      //      全程形状防御 + try/catch——任何异常都不允许阻断插件加载（早期版本曾因此白屏）。
+      ctx.effect(() => {
+        try {
+          const anyCtx = ctx as unknown as { settingsScope?: unknown; get?(name: string): unknown }
+        const face = (anyCtx.settingsScope ?? (typeof anyCtx.get === 'function' ? anyCtx.get('settingsScope') : undefined)) as
+            | {
+                bind(o: { namespace: string }): {
+                  getSnapshot(): unknown
+                  subscribe(listener: () => void): () => void
+                }
+              }
+            | undefined
+          if (face === undefined || typeof face.bind !== 'function') return () => {}
+          const scope = face.bind({ namespace: 'dsh-mobile-xc' })
+          if (scope === undefined || scope === null) return () => {}
+          const readOnce = (): unknown => {
+            try {
+              return typeof scope.getSnapshot === 'function' ? resolveSettingsValue(scope.getSnapshot()) : undefined
+            } catch {
+              return undefined
+            }
+          }
+          const seeded = readOnce()
+          if (seeded !== undefined && seeded !== null) {
+            try {
+              setConfig(seeded as Partial<XcConfig>)
+            } catch {
+              /* 应用失败不阻断 */
+            }
+          }
+          if (typeof scope.subscribe === 'function') {
+            const off = scope.subscribe(() => {
+              const next = readOnce()
+              if (next !== undefined && next !== null) {
+                try {
+                  setConfig(next as Partial<XcConfig>)
+                } catch {
+                  /* 忽略 */
+                }
+              }
+            })
+            return () => {
+              try {
+                off()
+              } catch {
+                /* 忽略 */
+              }
+            }
+          }
+          return () => {}
+        } catch {
+          return () => {}
+        }
+      }, 'dsh-mobile-xc: settings namespace')
+
+      // 0.2) 配置即时生效（当前项：PWA 开关）
+      ctx.effect(() =>
+        onConfigChange((cfg) => {
+          try {
+            if (cfg.pwaEnabled) enablePwa()
+            else disablePwa()
+          } catch {
+            /* 忽略 */
+          }
+        }),
+        'dsh-mobile-xc: pwa config reaction',
+      )
 
       // 1) 样式注入（fiber 生命周期，卸载即移除）
       ctx.effect(() => {
@@ -153,10 +232,20 @@ window.__ModuleLoader__.load({
         }),
         'dsh-mobile-xc: debug badge',
       )
+
+      // 7) 设置 → 插件 →「插件配置」tab 的配置卡（dshmarket 同款；异常不阻断加载）
+      try {
+        installXcPluginCard(ctx, react as unknown as { createElement(...a: unknown[]): unknown; useState<T>(i: T | (() => T)): [T, (v: T) => void]; useEffect(f: () => unknown, d: unknown[]): void; useRef<T>(i: T): { current: T } })
+      } catch {
+        /* 忽略 */
+      }
+
     }
 
     exports.apply = apply
     exports.disablePwa = disablePwa
+    // 声明所需客户端服务面（由运行时注入为 ctx 属性）
+    exports.inject = ['slots', 'locale', 'settingsScope']
     return module.exports
   },
 })

@@ -8,9 +8,10 @@
  */
 import type { EffectHost } from '../breakpoints.ts'
 import { installMobileEffect } from '../breakpoints.ts'
-import { GESTURE } from '../config.ts'
+import { getConfig } from '../config.ts'
 
 const EDGE_IGNORE_PX = 16
+const SWIPE_THRESHOLD_PX = 64
 
 interface DragState {
   startX: number
@@ -114,8 +115,8 @@ export function installMobileGesture(ctx: EffectHost, toggleSidebar: () => void)
           return // 垂直滚动意图，交给原生
         }
         if (d.fired) return
-        if (Math.abs(dx) < GESTURE.swipeThresholdPx) return
-        if (!GESTURE.dragEnabled) {
+        if (Math.abs(dx) < SWIPE_THRESHOLD_PX) return
+        if (!getConfig().dragEnabled) {
           // 一次性 swipe：关闭中向右滑开、打开中向左滑关；同向不动作
           const swipingRight = dx > 0
           if (!d.open && swipingRight) toggleSidebar()

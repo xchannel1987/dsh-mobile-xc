@@ -1,6 +1,6 @@
 {
   "name": "dsh-mobile-xc",
-  "version": "0.2.2",
+  "version": "0.4.7",
   "description": "DSH Web 移动端 UI 适配集大成插件：overlay 抽屉、安全区、canary 防升级失效；<=1023px 生效，桌面零影响。",
   "keywords": ["dsh", "deepseek-harness", "plugin", "web", "mobile", "ui"],
   "type": "module",
@@ -28,6 +28,10 @@
     "verify": "tsc --noEmit && node scripts/verify-lib.mjs",
     "test": "node --test \"tests/*.test.ts\"",
     "prepack": "npm run build"
+  },
+  "dependencies": {
+    "@deepseek-ai/dsh-settings": "0.1.1-rc.2",
+    "@deepseek-ai/schemastery": "^3.18.1"
   },
   "devDependencies": {
     "@deepseek-ai/cordis": "^4.0.1",
