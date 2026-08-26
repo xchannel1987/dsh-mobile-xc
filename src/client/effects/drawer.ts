@@ -10,6 +10,7 @@
 import type { ReconcilerTask } from '../core/reconciler-core.ts'
 import type { EffectHost } from '../breakpoints.ts'
 import { installMobileEffect } from '../breakpoints.ts'
+import { getConfig } from '../config.ts'
 
 /** 查找 AppFrame：data-shell-overlay 的直接父元素。 */
 export function findFrame(): HTMLElement | null {
@@ -77,7 +78,7 @@ export function createFrameMarkerTask(): ReconcilerTask {
   }
 }
 
-/** drawer-chrome：汉堡 + 遮罩（插件注入节点，卸载清理）。 */
+/** drawer-chrome：汉堡 + 遮罩 + 可配置刷新按钮（插件注入节点，卸载清理）。 */
 export function createDrawerChromeTask(toggleSidebar: () => void): ReconcilerTask {
   let ham: HTMLButtonElement | null = null
   let scrim: HTMLDivElement | null = null
@@ -122,19 +123,26 @@ export function createDrawerChromeTask(toggleSidebar: () => void): ReconcilerTas
         f.appendChild(s)
         scrim = s
       }
-      if (refresh === null) {
-        const b = document.createElement('button')
-        b.type = 'button'
-        b.className = 'dsh-xc-refresh'
-        b.dataset.mobileNav = 'refresh'
-        b.setAttribute('aria-label', '\u5237\u65b0\u9875\u9762')
-        b.textContent = '\u5237\u65b0'
-        b.addEventListener('click', onRefreshClick)
-        // 优先挂进 vendor 侧栏底部操作区；找不到则挂在抽屉尾（CSS 兜底布局）
-        const footer = f.querySelector('[data-mobile-nav="drawer"] [class*="footerActions"], [data-mobile-nav="drawer"] [class*="footArea"]')
-        if (footer !== null) footer.appendChild(b)
-        else f.appendChild(b)
-        refresh = b
+      // 刷新按钮由配置 drawerRefresh 控制（默认隐藏；设置开启后即插即显）
+      if (getConfig().drawerRefresh) {
+        if (refresh === null) {
+          const b = document.createElement('button')
+          b.type = 'button'
+          b.className = 'dsh-xc-refresh'
+          b.dataset.mobileNav = 'refresh'
+          b.setAttribute('aria-label', '\u5237\u65b0\u9875\u9762')
+          b.textContent = '\u5237\u65b0'
+          b.addEventListener('click', onRefreshClick)
+          // 优先挂进 vendor 侧栏底部操作区；找不到则挂在抽屉尾（CSS 兜底布局）
+          const footer = f.querySelector('[data-mobile-nav="drawer"] [class*="footerActions"], [data-mobile-nav="drawer"] [class*="footArea"]')
+          if (footer !== null) footer.appendChild(b)
+          else f.appendChild(b)
+          refresh = b
+        }
+      } else if (refresh !== null) {
+        refresh.removeEventListener('click', onRefreshClick)
+        refresh.remove()
+        refresh = null
       }
     },
     dispose() {

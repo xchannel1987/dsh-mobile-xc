@@ -180,6 +180,17 @@ window.__ModuleLoader__.load({
       registerDrawerTasks(core, toggleSidebar)
       registerComposerTasks(core)
       registerCompatTasks(core)
+      // 3.1) 配置变化 → 触发 reconciler（drawerRefresh 等开关即时生效，无需刷新页面）
+      ctx.effect(() =>
+        onConfigChange(() => {
+          try {
+            core.note(['*'])
+          } catch {
+            /* 忽略 */
+          }
+        }),
+        'dsh-mobile-xc: reconciler config reaction',
+      )
       installMobileEffect(ctx, 'dsh-mobile-xc: reconciler', () => {
         const observer = new MutationObserver((records) => {
           const keys = new Set<string>()

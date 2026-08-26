@@ -9,10 +9,12 @@ export interface XcConfig {
   readonly dshmarketNavFix: boolean
   /** PWA Service Worker（关闭会立即卸载并跳过注册）。 */
   readonly pwaEnabled: boolean
+  /** 工作区抽屉刷新按钮（PWA 无下拉刷新时的手动入口；默认隐藏）。 */
+  readonly drawerRefresh: boolean
 }
 
 const KEY = 'dsh-mobile-xc.config'
-const DEFAULTS: XcConfig = { dragEnabled: false, dshmarketNavFix: true, pwaEnabled: true }
+const DEFAULTS: XcConfig = { dragEnabled: false, dshmarketNavFix: true, pwaEnabled: true, drawerRefresh: false }
 
 function load(): XcConfig {
   if (typeof localStorage === 'undefined') return { ...DEFAULTS }

@@ -7,6 +7,7 @@ import { createFrameMarkerTask, createDrawerChromeTask } from './drawer.ts'
 import { createComposerHeightTask } from './composer.ts'
 import { createMarketNavTask } from './compat.ts'
 import { createHideAddWorkspaceTask } from './workspace-compat.ts'
+import { createSettingsPanelTask } from './settings-panel.ts'
 
 export function registerDrawerTasks(core: ReconcilerCore, toggleSidebar: () => void): () => void {
   const removeMarker = core.register(createFrameMarkerTask())
@@ -24,8 +25,10 @@ export function registerComposerTasks(core: ReconcilerCore): () => void {
 export function registerCompatTasks(core: ReconcilerCore): () => void {
   const removeMarket = core.register(createMarketNavTask())
   const removeHideAdd = core.register(createHideAddWorkspaceTask())
+  const removeSettingsPanel = core.register(createSettingsPanelTask())
   return () => {
     removeMarket()
     removeHideAdd()
+    removeSettingsPanel()
   }
 }

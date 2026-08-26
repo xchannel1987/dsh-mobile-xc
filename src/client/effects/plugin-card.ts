@@ -42,6 +42,7 @@ const FIELDS: Array<{ key: string; label: string; hint: string }> = [
   { key: 'dragEnabled', label: '跟手拖拽', hint: '开启后抽屉随手指拖动，松手按速度/位移吸附' },
   { key: 'dshmarketNavFix', label: 'dshmarket 设置导航修复', hint: '窄屏保留设置导航，防止市场页死路' },
   { key: 'pwaEnabled', label: 'PWA 离线缓存', hint: '关闭后立即卸载缓存，页面走网络' },
+  { key: 'drawerRefresh', label: '抽屉刷新按钮', hint: '侧栏底部刷新入口，PWA 无下拉刷新时的手动刷新（默认隐藏）' },
 ]
 
 const rowClass = 'dsh-xc-srow'
@@ -181,7 +182,7 @@ export function installXcPluginCard(ctx: unknown, react: Reactish): void {
             'span',
             { className: 'YyYd_a_headText' },
             react.createElement('span', { className: 'YyYd_a_name' }, '移动端适配'),
-            react.createElement('span', { className: 'YyYd_a_description' }, '移动端适配选项：跟手拖拽 / dshmarket 兼容 / PWA'),
+            react.createElement('span', { className: 'YyYd_a_description' }, '移动端适配选项：跟手拖拽 / 市场兼容 / 刷新按钮 / PWA'),
           ),
           react.createElement(
             'svg',
