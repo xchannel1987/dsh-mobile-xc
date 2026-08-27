@@ -5,7 +5,7 @@
  * 全链路形状防御 + try/catch：任何异常不影响插件 entry 加载。
  */
 
-import { resolveSettingsValue } from '../config.ts'
+import { resolveSettingsValue, setConfig } from '../config.ts'
 
 interface Reactish {
   createElement(type: unknown, props: Record<string, unknown> | null, ...children: unknown[]): unknown
@@ -39,7 +39,7 @@ interface CtxFace {
 const XC_NS = 'dsh-mobile-xc'
 
 const FIELDS: Array<{ key: string; label: string; hint: string }> = [
-  { key: 'dragEnabled', label: '跟手拖拽', hint: '开启后抽屉随手指拖动，松手按速度/位移吸附' },
+  { key: 'swipeEnabled', label: '滑动打开抽屉', hint: '从屏幕左边缘右滑打开工作区抽屉' },
   { key: 'dshmarketNavFix', label: 'dshmarket 设置导航修复', hint: '窄屏保留设置导航，防止市场页死路' },
   { key: 'pwaEnabled', label: 'PWA 离线缓存', hint: '关闭后立即卸载缓存，页面走网络' },
   { key: 'drawerRefresh', label: '抽屉刷新按钮', hint: '侧栏底部刷新入口，PWA 无下拉刷新时的手动刷新（默认隐藏）' },
@@ -114,6 +114,12 @@ export function installXcPluginCard(ctx: unknown, react: Reactish): void {
       }, [])
       const toggle = (key: string, checked: boolean): void => {
         dirtyRef.current = true
+        // 同步写入 localStorage（供 getConfig() 读取）
+        try {
+          setConfig({ [key]: checked } as Partial<import('../config.ts').XcConfig>)
+        } catch {
+          /* 忽略 */
+        }
         // 本地乐观翻转：立即改变 UI 状态（设置服务写入为异步）
         try {
           setValues({ ...values, [key]: checked })

@@ -1,10 +1,10 @@
 /**
  * config — dsh-mobile-xc 可配置项（设置页「移动端」区块读写，localStorage 持久化）。
- * 默认值 = 当前行为：跟手拖拽关、dshmarket 反制开、PWA 开。
+ * 默认值 = 当前行为：滑动开抽屉开、dshmarket 反制开、PWA 开。
  */
 export interface XcConfig {
-  /** 跟手拖拽（swipe 一次性触发为默认）。 */
-  readonly dragEnabled: boolean
+  /** 滑动打开工作区抽屉（从左边缘右滑打开）。 */
+  readonly swipeEnabled: boolean
   /** dshmarket >=1.20 在 <=560px 隐藏设置 nav 的死路反制。 */
   readonly dshmarketNavFix: boolean
   /** PWA Service Worker（关闭会立即卸载并跳过注册）。 */
@@ -14,7 +14,7 @@ export interface XcConfig {
 }
 
 const KEY = 'dsh-mobile-xc.config'
-const DEFAULTS: XcConfig = { dragEnabled: false, dshmarketNavFix: true, pwaEnabled: true, drawerRefresh: false }
+const DEFAULTS: XcConfig = { swipeEnabled: true, dshmarketNavFix: true, pwaEnabled: true, drawerRefresh: false }
 
 function load(): XcConfig {
   if (typeof localStorage === 'undefined') return { ...DEFAULTS }

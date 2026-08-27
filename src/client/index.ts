@@ -3,7 +3,7 @@
  *
  * 结构：PWA 关闭标记 -> 样式注入 -> canary 失配自检 -> reconciler 生命周期
  * （frame-marker / drawer-chrome / composer-height / market-nav-fix 任务）-> 交互层
- * （Escape/点外/导航自动关）-> 手势层（swipe 默认 + 跟手默认关）-> phone-chrome +
+ * （Escape/点外/导航自动关）-> 手势层（滑动开抽屉）-> phone-chrome +
  * focus-guard -> 调试徽标。
  * exports.disablePwa：预留设置项一键关闭 PWA（localStorage 标记 + 卸载 SW）。
  */
@@ -217,7 +217,7 @@ window.__ModuleLoader__.load({
       // 4) 交互层（Escape / 点外 / 导航自动关；窄屏装配）
       installOverlayInteractions(ctx, toggleSidebar)
 
-      // 4.1) 手势层（swipe 一次性触发默认；跟手拖拽 GESTURE.dragEnabled 开启）
+      // 4.1) 手势层（从左边缘滑动打开/关闭抽屉）
       installMobileGesture(ctx, toggleSidebar)
 
       // 5) 移动基线（viewport-fit=cover + 缩放抑制；focus-guard 防键盘弹起）

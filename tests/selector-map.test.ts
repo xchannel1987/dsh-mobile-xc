@@ -50,14 +50,14 @@ test('哈希条目未命中：告警含选择器与兜底', () => {
 })
 
 test('resolveSettingsValue：描述符取 value 子对象', () => {
-  const desc = { status: 'ready', value: { dragEnabled: true }, base: {}, revision: 0 }
+  const desc = { status: 'ready', value: { swipeEnabled: true }, base: {}, revision: 0 }
   const got = resolveSettingsValue(desc) as Record<string, unknown>
-  assert.ok(got && got.dragEnabled === true)
+  assert.ok(got && got.swipeEnabled === true)
 })
 
 test('resolveSettingsValue：纯值对象原样返回', () => {
-  const v = resolveSettingsValue({ dragEnabled: true })
-  assert.ok((v as Record<string, unknown>).dragEnabled === true)
+  const v = resolveSettingsValue({ swipeEnabled: true })
+  assert.ok((v as Record<string, unknown>).swipeEnabled === true)
 })
 
 test('resolveSettingsValue：null 原样', () => {

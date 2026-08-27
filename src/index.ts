@@ -19,9 +19,9 @@ const ICON_SIZES = ['192', '512', '180'] as const
 /** 插件配置命名空间（dshmarket 同款：设置 -> 插件 -> dsh-mobile-xc 配置卡）。 */
 export const XC_SETTINGS_NS = settingsNamespace('dsh-mobile-xc')
 
-/** 移动端配置 schema：跟手拖拽 / dshmarket 兼容修复 / PWA / 抽屉刷新按钮。 */
+/** 移动端配置 schema：滑动开抽屉 / dshmarket 兼容修复 / PWA / 抽屉刷新按钮。 */
 export const XcSettings = z.object({
-  dragEnabled: z.boolean().default(false),
+  swipeEnabled: z.boolean().default(true),
   dshmarketNavFix: z.boolean().default(true),
   pwaEnabled: z.boolean().default(true),
   drawerRefresh: z.boolean().default(false),
