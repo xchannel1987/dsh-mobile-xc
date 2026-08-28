@@ -1,5 +1,11 @@
 # dsh-mobile-xc
 
+[![npm version](https://img.shields.io/npm/v/dsh-mobile-xc.svg)](https://www.npmjs.com/package/dsh-mobile-xc)
+[![license](https://img.shields.io/npm/l/dsh-mobile-xc.svg)](https://github.com/keyiadiannao/dsh-mobile-xc/blob/main/LICENSE)
+[![downloads](https://img.shields.io/npm/dm/dsh-mobile-xc.svg)](https://www.npmjs.com/package/dsh-mobile-xc)
+[![DSH](https://img.shields.io/badge/DeepSeek-Harness-blue)](https://github.com/deepseek-ai/DeepSeek-Harness)
+
+
 DSH Web 移动端 UI 适配「集大成」插件：整合 dsh-mobile-glass / dsh-mobile-nav /
 dsh-mobile(TecFancy) / dsh-mobile-webui / dsh-web-mobile-fix 的最优设计。
 

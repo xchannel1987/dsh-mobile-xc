@@ -2,12 +2,23 @@
   "name": "dsh-mobile-xc",
   "version": "0.5.2",
   "description": "DSH Web 移动端 UI 适配集大成插件：overlay 抽屉、安全区、canary 防升级失效；<=1023px 生效，桌面零影响。",
-  "keywords": ["dsh", "deepseek-harness", "plugin", "web", "mobile", "ui"],
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "plugin",
+    "web",
+    "mobile",
+    "ui"
+  ],
   "type": "module",
   "main": "lib/index.js",
   "exports": {
-    ".": { "default": "./lib/index.js" },
-    "./client": { "default": "./lib/client.js" },
+    ".": {
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "default": "./lib/client.js"
+    },
     "./cordis.patch.yml": "./cordis.patch.yml",
     "./package.json": "./package.json"
   },
@@ -16,18 +27,29 @@
       "patch": "./cordis.patch.yml"
     },
     "client": {
-      "inject": ["@deepseek-ai/dsh-client-runtime"],
+      "inject": [
+        "@deepseek-ai/dsh-client-runtime"
+      ],
       "platform": "web"
     }
   },
-  "files": ["lib", "src", "assets", "cordis.patch.yml", "README.md", "LICENSE"],
+  "files": [
+    "lib",
+    "src",
+    "assets",
+    "cordis.patch.yml",
+    "README.md",
+    "README_EN.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "npm run build:host && npm run build:client && node scripts/verify-lib.mjs --write",
     "build:host": "esbuild src/index.ts --bundle --platform=node --format=esm --outfile=lib/index.js",
     "build:client": "esbuild src/client/index.ts --bundle --platform=browser --format=iife --outfile=lib/client.js --external:react",
     "verify": "tsc --noEmit && node scripts/verify-lib.mjs",
     "test": "node --test \"tests/*.test.ts\"",
-    "prepack": "npm run build"
+    "prepack": "npm run build",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@deepseek-ai/dsh-settings": "0.1.1-rc.2",
@@ -41,5 +63,20 @@
     "esbuild": "^0.25.0",
     "typescript": "^5.5.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "author": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/keyiadiannao/dsh-mobile-xc.git"
+  },
+  "bugs": {
+    "url": "https://github.com/keyiadiannao/dsh-mobile-xc/issues"
+  },
+  "homepage": "https://github.com/keyiadiannao/dsh-mobile-xc#readme",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=18"
+  }
 }
