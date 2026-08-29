@@ -67,12 +67,12 @@
   "author": "",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/keyiadiannao/dsh-mobile-xc.git"
+    "url": "git+https://github.com/xchannel1987/dsh-mobile-xc.git"
   },
   "bugs": {
-    "url": "https://github.com/keyiadiannao/dsh-mobile-xc/issues"
+    "url": "https://github.com/xchannel1987/dsh-mobile-xc/issues"
   },
-  "homepage": "https://github.com/keyiadiannao/dsh-mobile-xc#readme",
+  "homepage": "https://github.com/xchannel1987/dsh-mobile-xc#readme",
   "publishConfig": {
     "access": "public"
   },
