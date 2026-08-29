@@ -1,22 +1,54 @@
 # dsh-mobile-xc
 
 [![npm version](https://img.shields.io/npm/v/dsh-mobile-xc.svg)](https://www.npmjs.com/package/dsh-mobile-xc)
-[![license](https://img.shields.io/npm/l/dsh-mobile-xc.svg)](https://github.com/keyiadiannao/dsh-mobile-xc/blob/main/LICENSE)
+[![license](https://img.shields.io/npm/l/dsh-mobile-xc.svg)](https://github.com/xchannel1987/dsh-mobile-xc/blob/main/LICENSE)
 [![downloads](https://img.shields.io/npm/dm/dsh-mobile-xc.svg)](https://www.npmjs.com/package/dsh-mobile-xc)
+[![DSH](https://img.shields.io/badge/DeepSeek-Harness-blue)](https://github.com/deepseek-ai/DeepSeek-Harness)
 
-A comprehensive mobile UI adaptation plugin for DSH Web that integrates the best designs from dsh-mobile-glass, dsh-mobile-nav, dsh-mobile (TecFancy), dsh-mobile-webui, and dsh-web-mobile-fix.
+[中文](README.md) | [English](README_EN.md)
 
-## Features
+**The ultimate mobile UI adaptation plugin for DeepSeek Harness** — integrating the best designs from multiple mobile plugins to deliver a native mobile experience.
 
-- **Breakpoint**: Activates mobile adaptation at <=1023px (aligned with vendor SIDEBAR_AUTO_COLLAPSE=1024), zero impact on desktop >=1024px
-- **Core Capabilities**:
-  - Overlay drawer with scrim
-  - Safe-area full coverage
-  - Canary version mismatch detection (soft warning + fallback degradation)
-  - Reconciler single-observer scheduling
-  - PWA support (official DSH whale icon)
+## ✨ Core Features
 
-## Installation
+### 📱 Mobile Drawer Navigation
+- **Overlay Drawer**: Sidebar slides out as an overlay without affecting the main content area
+- **Scrim Backdrop**: Tap the scrim to close the drawer, following mobile interaction patterns
+- **Gesture Support**: Swipe to open/close drawer (configurable)
+- **Escape Key Close**: Keyboard-friendly
+
+### 🎨 Glass Card Design
+- **Glassmorphism Style**: Modern frosted glass visual effect
+- **Single-line Input**: Compact input area layout for mobile
+- **FLIP Animations**: Smooth state transition animations
+- **44px Touch Targets**: Meets mobile touch interaction standards
+
+### 📐 Safe Area Coverage
+- **Notch Adaptation**: Properly handles safe areas on iPhone X and similar devices
+- **Home Indicator**: Prevents content from being obscured by gesture bar
+- **Dynamic Viewport**: Supports `dvh` unit, auto-adjusts when keyboard appears
+
+### 🔄 Smart Compatibility System
+- **Version Mismatch Detection**: Automatically checks DSH version compatibility
+- **Soft Warning**: Compatibility issues don't block usage, only notify
+- **Fallback Degradation**: Auto-degrades in extreme cases to ensure usability
+- **Third-party Plugin Compatibility**: Adapted for dshmarket, dsh-better-sidebar, etc.
+
+### 📲 PWA Support
+- **Official Whale Icon**: Uses DSH official favicon
+- **Offline Ready**: Service Worker precaches critical resources
+- **Installable**: Supports "Add to Home Screen"
+
+## 🎯 Breakpoint Design
+
+| Breakpoint | Behavior |
+|------------|----------|
+| ≤1023px | Mobile adaptation activated |
+| ≥1024px | Desktop mode, zero impact |
+
+Aligned with DSH built-in `SIDEBAR_AUTO_COLLAPSE=1024` for seamless switching.
+
+## 📦 Installation
 
 ```bash
 # Using DSH CLI
@@ -26,71 +58,42 @@ dsh plugin --profile web add dsh-mobile-xc
 npm install dsh-mobile-xc
 ```
 
-## Configuration
+Restart DSH after installation.
 
-The plugin can be configured through DSH settings under the "Mobile UI" section.
+## ⚙️ Configuration
 
-### Options
+Configure via DSH Settings → "Mobile UI" section:
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| enabled | boolean | true | Enable/disable mobile UI adaptation |
-| gestureMode | 'swipe' | 'follow' | 'off' | 'swipe' | Gesture mode for drawer |
-| compatFixes | boolean | true | Enable compatibility fixes for third-party plugins |
+| enabled | boolean | true | Enable/disable mobile adaptation |
+| gestureMode | 'swipe' | 'follow' | 'off' | 'swipe' | Drawer gesture mode |
+| compatFixes | boolean | true | Third-party plugin compatibility fixes |
 
-## Compatibility Matrix
+## 🔗 Compatibility Matrix
 
-| Package | Version | Status |
-|---------|---------|--------|
-| DSH (vendor hash) | 0.1.1-rc.2 | ✅ selector-map 18 entries + canary mismatch detection |
-| dshmarket | 1.20.x | ✅ Nav dead-end countermeasure |
+| Package | Verified Version | Status |
+|---------|-----------------|--------|
+| DSH (vendor) | 0.1.1-rc.2 | ✅ 18 selector mappings |
+| dshmarket | 1.20.x | ✅ Nav dead-end fix |
 | dsh-better-sidebar | 0.15.2 | ✅ Peaceful coexistence |
-| dsh-token-usage | 0.2.16 | ✅ COMPAT.tokenUsageGlue registered |
+| dsh-token-usage | 0.2.16 | ✅ Compatibility registered |
 
-## PWA Support
-
-- **Icon**: Official DSH black whale icon (rasterized to 192/512/180 + maskable)
-- **Caching**: Service worker with minimal cache strategy
-  - Pre-cache boot resources only
-  - Other content-addressed resources: cache-first incremental healing
-  - /api/* and /plugins/events: completely bypassed
-  - Navigation: network-first with fallback to offline page
-
-### Disable PWA
-
-Set `localStorage['dsh-mobile-xc.pwa'] = 'off'` or unregister via DevTools → Application → Service Workers.
-
-## Development
+## 🛠️ Development
 
 ```bash
-# Install dependencies
 pnpm install
-
-# Type checking
-pnpm verify
-
-# Run tests
-pnpm test
-
-# Build
-pnpm build
+pnpm verify        # Type check + lib drift check
+pnpm test          # Unit tests
+pnpm build         # Build artifacts
 ```
 
-## Requirements
-
-- Node.js >= 18
-- DSH >= 0.1.0-rc.2
-
-## License
+## 📄 License
 
 [MIT](LICENSE)
 
-## Contributing
+## 🔗 Links
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
-
-## Links
-
-- [GitHub Repository](https://github.com/keyiadiannao/dsh-mobile-xc)
-- [npm Package](https://www.npmjs.com/package/dsh-mobile-xc)
-- [Report Issues](https://github.com/keyiadiannao/dsh-mobile-xc/issues)
+- [GitHub](https://github.com/xchannel1987/dsh-mobile-xc)
+- [npm](https://www.npmjs.com/package/dsh-mobile-xc)
+- [Issues](https://github.com/xchannel1987/dsh-mobile-xc/issues)

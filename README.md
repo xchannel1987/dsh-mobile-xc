@@ -1,61 +1,99 @@
 # dsh-mobile-xc
 
 [![npm version](https://img.shields.io/npm/v/dsh-mobile-xc.svg)](https://www.npmjs.com/package/dsh-mobile-xc)
-[![license](https://img.shields.io/npm/l/dsh-mobile-xc.svg)](https://github.com/keyiadiannao/dsh-mobile-xc/blob/main/LICENSE)
+[![license](https://img.shields.io/npm/l/dsh-mobile-xc.svg)](https://github.com/xchannel1987/dsh-mobile-xc/blob/main/LICENSE)
 [![downloads](https://img.shields.io/npm/dm/dsh-mobile-xc.svg)](https://www.npmjs.com/package/dsh-mobile-xc)
 [![DSH](https://img.shields.io/badge/DeepSeek-Harness-blue)](https://github.com/deepseek-ai/DeepSeek-Harness)
 
+[中文](README.md) | [English](README_EN.md)
 
-DSH Web 移动端 UI 适配「集大成」插件：整合 dsh-mobile-glass / dsh-mobile-nav /
-dsh-mobile(TecFancy) / dsh-mobile-webui / dsh-web-mobile-fix 的最优设计。
+**DSH Web 移动端 UI 完美适配插件** —— 整合多个移动端插件的最优设计，为 DeepSeek Harness 提供原生的移动端体验。
 
-- 断点：<=1023px 激活移动适配（与 vendor SIDEBAR_AUTO_COLLAPSE=1024 对齐），>=1024px 桌面零影响。
-- 核心能力（随里程碑逐步落地）：overlay 抽屉、safe-area 全覆盖、canary 失配自检
-  （软告警 + 兜底降级）、reconciler 单观察者调度、PWA（官方黑鲸鱼图标）。
-- 详细需求与方案：D:/workspace/requirements/dsh-mobile-xc/
+## ✨ 核心特性
 
-## 状态（里程碑进度）
+### 📱 移动端抽屉导航
+- **Overlay 抽屉**：侧边栏以覆盖层形式滑出，不影响主内容区
+- **Scrim 遮罩**：点击遮罩关闭抽屉，符合移动端交互习惯
+- **手势支持**：支持滑动打开/关闭抽屉（可配置）
+- **Escape 键关闭**：键盘用户友好
 
-| 里程碑 | 内容 | 状态 |
+### 🎨 玻璃卡片设计
+- **Glassmorphism 风格**：现代毛玻璃视觉效果
+- **一行输入框**：移动端输入区紧凑布局
+- **FLIP 动画**：流畅的状态切换动画
+- **44px 触控热区**：符合移动端交互标准
+
+### 📐 Safe Area 全覆盖
+- **刘海屏适配**：正确处理 iPhone X 等机型的安全区域
+- **底部手势条**：避免内容被手势条遮挡
+- **动态视口**：支持 `dvh` 单位，键盘弹出时自动调整
+
+### 🔄 智能兼容系统
+- **版本失配检测**：自动检测 DSH 版本兼容性
+- **软告警机制**：兼容问题不阻塞使用，仅提示
+- **兜底降级**：极端情况下自动降级，保证可用
+- **第三方插件兼容**：已适配 dshmarket、dsh-better-sidebar 等
+
+### 📲 PWA 支持
+- **官方黑鲸鱼图标**：使用 DSH 官方 favicon
+- **离线可用**：Service Worker 预缓存关键资源
+- **可安装**：支持添加到主屏幕
+
+## 🎯 断点设计
+
+| 断点 | 行为 |
+|------|------|
+| ≤1023px | 移动端适配激活 |
+| ≥1024px | 桌面模式，零影响 |
+
+与 DSH 内置 `SIDEBAR_AUTO_COLLAPSE=1024` 对齐，无缝切换。
+
+## 📦 安装
+
+```bash
+# 使用 DSH CLI
+dsh plugin --profile web add dsh-mobile-xc
+
+# 或使用 npm
+npm install dsh-mobile-xc
+```
+
+安装后重启 DSH 即可生效。
+
+## ⚙️ 配置
+
+插件可通过 DSH 设置 → 「移动端 UI」分区进行配置：
+
+| 选项 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| enabled | boolean | true | 启用/禁用移动端适配 |
+| gestureMode | 'swipe' | 'follow' | 'off' | 'swipe' | 抽屉手势模式 |
+| compatFixes | boolean | true | 第三方插件兼容修复 |
+
+## 🔗 兼容性矩阵
+
+| 包 | 验证版本 | 状态 |
 |---|---|---|
-| M0 | 骨架：reconciler-core / selector-map / breakpoints / 构建 / CI | ✅ 完成 |
-| M1 | 抽屉与布局：overlay 左抽屉 + scrim + 右侧 details 浮层、safe-area 基线、Escape/aria-modal/pointerup 关闭、focus-guard、CDP 门禁 | ✅ 完成 |
-| M2 | composer 与键盘：玻璃卡片、一行契约、FLIP 状态切换、44px 热区、键盘 dvh、reduced-motion | ✅ 完成 |
-| M3 | 设置 / 弹层 / 内容 + 第三方兼容开关（dshmarket/better-sidebar/token-usage） | ✅ 完成 |
-| M4 | 手势（swipe 默认 + 跟手默认关）+ 真机清单 | ✅ 完成 |
-| M5 | PWA（官方黑鲸鱼图标）+ 发布（本地安装实测） | ✅ 完成 |
+| DSH (vendor) | 0.1.1-rc.2 | ✅ 18 条 selector 映射 |
+| dshmarket | 1.20.x | ✅ 导航死路修复 |
+| dsh-better-sidebar | 0.15.2 | ✅ 和平共存 |
+| dsh-token-usage | 0.2.16 | ✅ 已注册兼容 |
 
-## 开发
+## 🛠️ 开发
 
-    pnpm install
-    pnpm verify        # tsc --noEmit + lib 漂移检查
-    pnpm test          # node --test tests/（reconciler-core 单测）
-    pnpm build         # esbuild 双端构建 + 刷新 lib/
+```bash
+pnpm install
+pnpm verify        # 类型检查 + lib 漂移检查
+pnpm test          # 单元测试
+pnpm build         # 构建产物
+```
 
-修改后必须 pnpm build 刷新 lib/（提交产物，消费端免构建）。
+## 📄 许可证
 
-## 兼容矩阵
+[MIT](LICENSE)
 
-| 项 | 验证版本 | 状态 |
-|---|---|---|
-| DSH（vendor 哈希） | dsh 0.1.1-rc.2 | ✅ selector-map 18 条登记 + canary 失配自检（软告警+兜底降级） |
-| dshmarket | 1.20.x（profile） | ✅ nav 死路反制（html[data-xc-market-fix]，COMPAT 开关） |
-| dsh-better-sidebar | 0.15.2（profile） | ✅ 和平共存（决策 1），零冲突规则 |
-| dsh-token-usage | 0.2.16（profile） | ✅ COMPAT.tokenUsageGlue 登记 |
+## 🔗 链接
 
-## PWA
-
-- 图标：DSH 官方黑鲸鱼（vendor favicon.svg 栅格化为 192/512/180 + maskable，深底白鲸；
-  scripts/rasterize-icons.mjs 可重新生成），不使用任何第三方自制图标。
-- 缓存：SW 收敛版——仅预缓存 boot 关键资源，其余内容寻址资源 cache-first 增量自愈；
-  /api/* 与 /plugins/events 完全旁路；导航 network-first，失败回退内置离线页。
-- 关闭：localStorage 'dsh-mobile-xc.pwa' = 'off' 时跳过注册并卸载 SW
-  （exports.disablePwa 预留设置项）；或 DevTools → Application → Service Workers → Unregister。
-
-## 安装（已在本机 profile 实测，dsh 0.1.1-rc.2）
-
-    cd D:/workspace/dsh-mobile-xc && npm pack
-    dsh plugin --profile web add file:D:/workspace/dsh-mobile-xc/dsh-mobile-xc-0.1.0.tgz
-    # 重启 dsh web 生效（Android/浏览器可用 PWA 添加到主屏幕）
-
-> 注意：Windows 下 pnpm 的 link:<绝对路径> 有解析缺陷，请使用 file:<tgz> 方式（与 dsh-token-usage / dsh-lan-proxy 一致）。
+- [GitHub](https://github.com/xchannel1987/dsh-mobile-xc)
+- [npm](https://www.npmjs.com/package/dsh-mobile-xc)
+- [问题反馈](https://github.com/xchannel1987/dsh-mobile-xc/issues)
