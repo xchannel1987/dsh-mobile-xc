@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.4] - 2026-09-08
+
+### Added
+- Declare `engines.dsh` (`>=0.1.1-rc.2`) in package.json so dsh-market shows the
+  host-version requirement and can filter by it. No functional change.
+
 ## [0.5.3] - 2026-09-03
 
 ### Fixed
