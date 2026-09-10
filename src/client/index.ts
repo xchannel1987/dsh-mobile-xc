@@ -7,7 +7,6 @@
  * focus-guard -> 调试徽标。
  * exports.disablePwa：预留设置项一键关闭 PWA（localStorage 标记 + 卸载 SW）。
  */
-import type { ClientContext } from '@deepseek-ai/dsh-client-runtime/client'
 import { MOBILE_CSS } from './styles/index.ts'
 import { getConfig, setConfig, onConfigChange, resolveSettingsValue } from './config.ts'
 import type { XcConfig } from './config.ts'
@@ -22,6 +21,16 @@ import { installFocusGuard } from './effects/focus-guard.ts'
 import { installXcPluginCard } from './effects/plugin-card.ts'
 import { installPhoneChrome } from './effects/phone-chrome.ts'
 import { installComposerAutoCollapse } from './effects/composer.ts'
+
+/**
+ * 客户端上下文最小面（本地化类型）。原 @deepseek-ai/dsh-client-runtime 已从
+ * dsh 宿主移除（npm 停更于 0.1.1-rc.2）；运行时实际只消费 effect/get，
+ * 其余服务面（slots/settingsScope）由使用方经形状防御按需取用。
+ */
+interface ClientContext {
+  effect<T>(fn: () => T | (() => void) | undefined, label?: string): void
+  get(name: string): unknown
+}
 
 declare global {
   interface Window {
@@ -205,7 +214,7 @@ window.__ModuleLoader__.load({
           childList: true,
           subtree: true,
           attributes: true,
-          attributeFilter: ['style', 'class', 'data-sidebar-collapsed', 'data-details-collapsed'],
+          attributeFilter: ['style', 'class', 'data-sidebar-collapsed', 'data-details-collapsed', 'data-rightbar-collapsed'],
         })
         core.activate()
         return () => {
@@ -236,6 +245,7 @@ window.__ModuleLoader__.load({
             'view=' + window.innerWidth + 'px' +
             ' mq=' + (narrow ? 'narrow' : 'wide') +
             ' shell=' + (structural.shellOverlay ? 'ok' : 'MISS') +
+            ' rightbar=' + (structural.rightbarContract ? 'ok' : 'MISS') +
             ' frame=' + (frameShape && structural.shellOverlay ? 'ok' : 'MISS') +
             ' composer=' + (structural.composerSlot ? 'ok' : 'MISS') +
             ' hash=' + hashed.hits + '/' + hashed.declared

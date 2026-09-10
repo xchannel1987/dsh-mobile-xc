@@ -4,7 +4,7 @@ import { formatCanaryReport } from '../src/client/core/selector-map.ts'
 import { resolveSettingsValue } from '../src/client/config.ts'
 import type { StructuralAnchors, HashedCheck } from '../src/client/core/selector-map.ts'
 
-const OK_STRUCT: StructuralAnchors = { shellOverlay: true, composerSlot: true, frameShape: true }
+const OK_STRUCT: StructuralAnchors = { shellOverlay: true, composerSlot: true, frameShape: true, rightbarContract: true }
 const OK_HASHED: HashedCheck = { hits: 1, declared: 1, missing: [] }
 
 test('全部正常：返回 null（不打扰）', () => {
@@ -74,7 +74,7 @@ test('部分命中（页面状态差异）只给概述，不列详细清单', ()
 
 test('多条告警并列展示', () => {
   const hashed: HashedCheck = { hits: 0, declared: 1, missing: [ { selector: '.a', dshVersion: 'x', usedBy: 't', reason: 'r', fallback: 'f' } ] }
-  const report = formatCanaryReport({ shellOverlay: false, composerSlot: false, frameShape: true }, hashed)
+  const report = formatCanaryReport({ shellOverlay: false, composerSlot: false, frameShape: true, rightbarContract: true }, hashed)
   assert.ok(report !== null)
   assert.ok(report.includes('3 处'))
 })

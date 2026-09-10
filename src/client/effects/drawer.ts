@@ -2,7 +2,8 @@
  * drawer — 抽屉核心（DR1/DR4/DR10）：
  *  - findFrame / makeSidebarToggle：定位与安全的开合入口（layout 服务，缺失降级告警）；
  *  - createFrameMarkerTask：frame 标记 + 角色标注（drawer/details）+ 状态桥
- *    （vendor 的 data-sidebar-collapsed / data-details-collapsed -> 插件自有 data-xc-*）；
+ *    （vendor 的 data-sidebar-collapsed / data-details-collapsed -> 插件自有 data-xc-*；
+ *    0.1.5 起右列属性更名 data-rightbar-collapsed，双识别兼容）；
  *  - createDrawerChromeTask：汉堡 + 遮罩两个注入节点（固定/绝对定位，脱离 grid 流）；
  *  - installOverlayInteractions：Escape（让位 [aria-modal]）+ 点外关闭 +
  *    treeitem 导航自动关（触屏走 pointerup 平行路径 + 抑制合成 click）。
@@ -38,6 +39,19 @@ export function makeSidebarToggle(ctx: { get(name: string): unknown }): () => vo
   }
 }
 
+/** 右列是否展开：0.1.5 起 vendor 用 data-rightbar-collapsed（旧名 data-details-collapsed），双识别。 */
+function detailsOpen(f: HTMLElement): boolean {
+  return !f.hasAttribute('data-details-collapsed') && !f.hasAttribute('data-rightbar-collapsed')
+}
+
+/** 右列元素：新 vendor 有 [data-rightbar-col] 语义锚；旧 vendor 回退第 3 个直系子元素。 */
+function findDetailsCol(f: HTMLElement): Element | null {
+  const anchored = f.querySelector(':scope > [data-rightbar-col]')
+  if (anchored !== null) return anchored
+  const byIndex = f.children[2]
+  return byIndex === undefined ? null : byIndex
+}
+
 /**
  * frame-marker：AppFrame 标记 + 子角色标注 + 状态桥。
  * scopes ['*']：每轮 flush 幂等重写（同值 setAttribute 不产生 mutation，不会自循环）。
@@ -55,13 +69,13 @@ export function createFrameMarkerTask(): ReconcilerTask {
       const drawer = f.firstElementChild
       if (drawer !== null) drawer.setAttribute('data-mobile-nav', 'drawer')
       const overlay = f.querySelector(':scope > [data-shell-overlay]')
-      const details = f.children[2]
-      if (details !== undefined && details !== overlay) {
+      const details = findDetailsCol(f)
+      if (details !== null && details !== overlay) {
         details.setAttribute('data-mobile-nav', 'details')
       }
       // 状态桥：镜像 vendor 开合属性（CSS/遮罩只认插件自有标记）
       f.toggleAttribute('data-xc-drawer', !f.hasAttribute('data-sidebar-collapsed'))
-      f.toggleAttribute('data-xc-details', !f.hasAttribute('data-details-collapsed'))
+      f.toggleAttribute('data-xc-details', detailsOpen(f))
     },
     dispose() {
       if (frame === null) return
@@ -72,8 +86,8 @@ export function createFrameMarkerTask(): ReconcilerTask {
       f.removeAttribute('data-xc-details')
       const drawer = f.firstElementChild
       if (drawer !== null) drawer.removeAttribute('data-mobile-nav')
-      const details = f.children[2]
-      if (details !== undefined) details.removeAttribute('data-mobile-nav')
+      const details = findDetailsCol(f)
+      if (details !== null) details.removeAttribute('data-mobile-nav')
     },
   }
 }

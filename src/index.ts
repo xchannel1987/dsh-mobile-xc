@@ -8,7 +8,6 @@ import type { Context } from '@deepseek-ai/cordis'
 import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { HEAD_EXTRA, MANIFEST_JSON, SW_SOURCE } from './pwa.ts'
-import { installSettingsSection, settingsNamespace } from '@deepseek-ai/dsh-settings'
 import z from '@deepseek-ai/schemastery'
 
 export const name = 'dsh-mobile-xc'
@@ -16,8 +15,13 @@ export const inject = ['webServer'] as const
 
 const ICON_SIZES = ['192', '512', '180'] as const
 
-/** 插件配置命名空间（dshmarket 同款：设置 -> 插件 -> dsh-mobile-xc 配置卡）。 */
-export const XC_SETTINGS_NS = settingsNamespace('dsh-mobile-xc')
+/**
+ * 插件配置命名空间（dshmarket 同款：设置 -> 插件 -> dsh-mobile-xc 配置卡）。
+ * 原用 @deepseek-ai/dsh-settings@0.1.1-rc.2 的 settingsNamespace() 品牌化；该包
+ * 0.1.5 起宿主只保留 SettingsProvider 服务（顶层 helper 已移除、npm 停更于
+ * 0.1.1-rc.2），命名空间本质是 lowercase-hyphen 字符串，此处本地化并断依赖。
+ */
+export const XC_SETTINGS_NS = 'dsh-mobile-xc'
 
 /** 移动端配置 schema：滑动开抽屉 / dshmarket 兼容修复 / PWA / 抽屉刷新按钮。 */
 export const XcSettings = z.object({
@@ -26,6 +30,29 @@ export const XcSettings = z.object({
   pwaEnabled: z.boolean().default(true),
   drawerRefresh: z.boolean().default(false),
 })
+
+/**
+ * settings 服务最小结构面（字符串名注入）。register(ns, schema, { base }) 契约
+ * 在 0.1.1-rc.2 与 0.1.5-rc.1 之间未变，且注册绑定调用方 fiber（卸载自动注销）。
+ * 服务端不消费配置变化（客户端经 settingsScope 订阅），因此不需要旧
+ * installSettingsSection 的 watch/setSource 编排——内联最小等价实现即可。
+ */
+interface SettingsFace {
+  register(ns: string, schema: unknown, options: { base?: unknown }): {
+    get(): unknown
+    watch(callback: (next: unknown, prev: unknown) => void): () => void
+  }
+}
+
+/** 以 fiber 注入 settings 服务并登记命名空间；服务缺失时静默跳过。 */
+function registerSettingsNamespace(ctx: Context, ns: string, schema: unknown, entry: Record<string, unknown>): void {
+  const inject = ctx.inject as unknown as (names: string[], cb: (sctx: { settings?: SettingsFace }) => void) => void
+  inject(['settings'], (sctx) => {
+    const settings = sctx.settings
+    if (settings === undefined || typeof settings.register !== 'function') return
+    settings.register(ns, schema, { base: entry })
+  })
+}
 
 interface ResFace {
   writeHead(code: number, headers?: Record<string, string>): void
@@ -54,16 +81,7 @@ const readIcon = (size: string) =>
 
 export function apply(ctx: Context): void {
   // 插件配置卡（设置 -> 插件 -> dsh-mobile-xc）；无 settings 服务时静默跳过
-  installSettingsSection(
-    ctx,
-    XC_SETTINGS_NS,
-    XcSettings,
-    {},
-    {
-      setSource: () => {},
-      onChange: () => {},
-    },
-  )
+  registerSettingsNamespace(ctx, XC_SETTINGS_NS, XcSettings, {})
 
   const ws = (ctx as unknown as { webServer?: WsFace }).webServer
   if (ws === undefined) return
