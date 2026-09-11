@@ -16,7 +16,7 @@
 - **Scrim Backdrop**: Tap the scrim to close the drawer, following mobile interaction patterns
 - **Gesture Support**: Swipe to open/close drawer (configurable)
 - **Escape Key Close**: Keyboard-friendly
-- **Swipeable session header**: the header keeps a single row on narrow screens; the title and PTC/usage badges overflow into a horizontal swipe, with a right-edge fade that clears at the end.
+- **Swipeable Session Header**: the header keeps a single row on narrow screens; the title and PTC/usage badges overflow into a horizontal swipe, with a right-edge fade that clears at the end
 
 ### 🎨 Glass Card Design
 - **Glassmorphism Style**: Modern frosted glass visual effect

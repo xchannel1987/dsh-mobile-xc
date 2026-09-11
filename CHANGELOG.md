@@ -20,8 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - 反制 `dsh-token-usage-xc` 的 `@media (max-width:380px)` 页头换行：极窄屏（≤380px）徽标不再
   换行、页头不再长高一行；徽标 flex 收缩保护规则改为两臂并列（`.wSkVaW_headerActions > *` 槽锚臂 +
-  `[data-slot="conversation.session.header.actions"] > *` 徽标根臂），修复此前冒号误写导致整条规则
-  被 CSS 解析器静默丢弃、徽标可被压扁的问题。
+  `[data-slot="conversation.session.header.actions"] > *` 徽标根臂）。
 
 ### Changed
 - Service Worker 缓存版本 bump 至 `202609-xc1`：activate 时删旧缓存并重收 boot 资源，真机 PWA

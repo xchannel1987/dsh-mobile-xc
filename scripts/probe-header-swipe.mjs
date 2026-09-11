@@ -11,12 +11,12 @@
  *      日志兜底仅对「从终端直接启动、且当前进程自己写过该日志」的实例有效；否则请走 1 或 2。
  * 其他环境变量：DSH_PROBE_CHROME（浏览器路径）/ DSH_PROBE_TIMEOUT_MS（DOM 等待上限，默认 20000）
  *
- * 断言 28 条（以 2026-09-11 真浏览器跑绿的参考实现为准，一条不多一条不少）：
+ * 断言 28 条（当前计数；以 2026-09-11 真浏览器跑绿的参考实现为准，一条不多一条不少）：
  *   390x844 进会话 + 门栓/滚动容器/crumbs 地板/actions 基准与不换行/两臂规则（CSSOM 存活
  *   + display:contents + 徽标根 flex-shrink）/单行高度/无常驻弹层 + 人造溢出（more 属性、
  *   mask 渐隐、滑到最右撤除、滚回左边复现、撤桩回基线，溢出态可逆）+ 375/380px 仍单行
  *   （反制 dsh-token-usage-xc ≤380px 换行）+ 开关关 4 条 + 桌面 1440x900 零影响 5 条。
- * 输出：每条 PASS/FAIL 一行（FAIL 带读数明细），末行「N/28 通过」；任一 FAIL 退出码 1。
+ * 输出：每条 PASS/FAIL 一行（均带读数明细），末行「通过数/总数」；任一 FAIL 退出码 1。
  * 安全：token 一个字都不打印、不落仓库文件；所有可能带 URL 的异常信息一律先过 redact() 掩码。
  *
  * 页面侧代码一律写成真实函数 + .toString() 序列化（call(fn, ...args)，参数走 JSON.stringify）：
@@ -90,8 +90,7 @@ function pgGeo(clusterSel) {
     crumbsMinWidth: crumbs ? g(crumbs).minWidth : null,
     actionsBasis: actions ? g(actions).flexBasis : null, actionsWrap: actions ? g(actions).flexWrap : null,
     anchorDisplay: anchor ? g(anchor).display : null,
-    badgeShrink: badge ? g(badge).flexShrink : null, badgeBasis: badge ? g(badge).flexBasis : null,
-    rowCount: actions ? actions.children.length : 0,
+    badgeShrink: badge ? g(badge).flexShrink : null,
     rowHeight: row ? Math.round(row.getBoundingClientRect().height) : null,
     popupNodes: c.querySelectorAll('ul[aria-label],[role=menu],[role=dialog]').length,
     cw: c.clientWidth, sw: c.scrollWidth,
