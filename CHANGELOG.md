@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.1] - 2026-09-12
+
+### Fixed
+- 移动端（<768px）点击会话头右上角「打开侧边栏」按钮（vendor 原生右栏 ExpandButton，
+  装载 dsh-better-sidebar 等插件的右栏）不显示右侧插件抽屉：该按钮打开的右栏面板是
+  `position:fixed` 全屏态（frame 仍带 `data-rightbar-collapsed`），而插件的
+  details 列 CSS 一直保持 `transform: translateX(110%)` 平移——transform 列成为
+  fixed 面板的包含块，面板被钉进「零宽绝对定位列」里不可见。
+  修复：frame 带 `data-rightbar-fullscreen` 时强制解除 details 列 transform
+  （面板按 vendor 桌面行为 fixed 盖满视口）；frame-marker 把全屏态当作右栏展开
+  （隐藏汉堡）；MutationObserver 补监听 `data-rightbar-fullscreen`。
+  底部工作台等非右栏面板不受影响（此前即正常）。
+
 ## [0.6.0] - 2026-09-11
 
 ### Added

@@ -214,7 +214,7 @@ window.__ModuleLoader__.load({
           childList: true,
           subtree: true,
           attributes: true,
-          attributeFilter: ['style', 'class', 'data-sidebar-collapsed', 'data-details-collapsed', 'data-rightbar-collapsed'],
+          attributeFilter: ['style', 'class', 'data-sidebar-collapsed', 'data-details-collapsed', 'data-rightbar-collapsed', 'data-rightbar-fullscreen'],
         })
         core.activate()
         return () => {
