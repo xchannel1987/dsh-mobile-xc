@@ -118,7 +118,7 @@ export const SELECTOR_MAP: SelectorEntry[] = [
   {
     selector: '.wSkVaW_crumbs',
     dshVersion: '0.1.5-rc.2',
-    usedBy: 'client/styles/compat.css.ts',
+    usedBy: 'M6 标题宽度地板 96px（compat.css.ts）',
     reason: '页头标题簇内的会话面包屑 nav（会话名容器）；无 data-* 语义锚，宽度地板须落在该类上',
     fallback: '宽度地板失效 → 徽标多时标题被 flex 压到 0 宽（比 vendor 更差），页头滑动本身仍可用',
   },
@@ -126,7 +126,7 @@ export const SELECTOR_MAP: SelectorEntry[] = [
     selector: '.wSkVaW_headerActions',
     dshVersion: '0.1.5-rc.2',
     usedBy: 'M6 反制 dsh-token-usage-xc ≤380px 换行 + 徽标不压扁',
-    reason: 'actions 槽容器无更细语义锚；需定向钉住 flex 基准',
+    reason: 'actions 槽容器无更细语义锚；需定向钉住 flex 基准（徽标根为槽锚的子女）',
     fallback: '漂移则该规则空转，最坏 = 小屏仍换行长高（即 0.5.8 行为）',
   },
   {
