@@ -39,8 +39,11 @@ export function makeSidebarToggle(ctx: { get(name: string): unknown }): () => vo
   }
 }
 
-/** 右列是否展开：0.1.5 起 vendor 用 data-rightbar-collapsed（旧名 data-details-collapsed），双识别。 */
+/** 右列是否展开：0.1.5 起 vendor 用 data-rightbar-collapsed（旧名 data-details-collapsed），双识别。
+ *  0.1.5 右栏全屏态（data-rightbar-fullscreen，<768px 打开右侧栏自动进入）视为展开：
+ *  面板此时 fixed 盖满视口，汉堡应让位（CSS 侧已解除 details 列 transform 陷阱）。 */
 function detailsOpen(f: HTMLElement): boolean {
+  if (f.hasAttribute('data-rightbar-fullscreen')) return true
   return !f.hasAttribute('data-details-collapsed') && !f.hasAttribute('data-rightbar-collapsed')
 }
 

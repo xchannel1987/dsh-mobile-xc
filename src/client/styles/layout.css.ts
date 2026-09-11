@@ -50,6 +50,12 @@ const LINES = [
   '  [data-mobile-nav="frame"]:not([data-details-collapsed]):not([data-rightbar-collapsed]) > [data-mobile-nav="details"] {',
   '    transform: none !important;',
   '  }',
+  /* vendor 原生右栏全屏态（<768px 自动；会话头右上 ExpandButton 打开）时强制解除
+     details 列 transform：否则该列（绝对定位 + transform）成为面板 fixed 的包含块，
+     面板被钉在零宽列上不可见（0.6.1 修复；参照桌面 vendor 行为 = fixed inset:0 盖满视口） */
+  '  [data-mobile-nav="frame"][data-rightbar-fullscreen] > [data-mobile-nav="details"] {',
+  '    transform: none !important;',
+  '  }',
   '',
   '  /* 遮罩：z 39 < 抽屉 40；打开时可见 */',
   '  .dsh-xc-scrim {',
