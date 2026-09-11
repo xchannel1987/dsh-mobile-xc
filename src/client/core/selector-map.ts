@@ -116,6 +116,13 @@ export const SELECTOR_MAP: SelectorEntry[] = [
     fallback: '漂移则 header-scroll 找不到元素、CSS 不命中 → 无横滚，回到 vendor 截断现状（功能不受影响）',
   },
   {
+    selector: '.wSkVaW_crumbs',
+    dshVersion: '0.1.5-rc.2',
+    usedBy: 'client/styles/compat.css.ts',
+    reason: '页头标题簇内的会话面包屑 nav（会话名容器）；无 data-* 语义锚，宽度地板须落在该类上',
+    fallback: '宽度地板失效 → 徽标多时标题被 flex 压到 0 宽（比 vendor 更差），页头滑动本身仍可用',
+  },
+  {
     selector: '.wSkVaW_headerActions',
     dshVersion: '0.1.5-rc.2',
     usedBy: 'M6 反制 dsh-token-usage-xc ≤380px 换行 + 徽标不压扁',
