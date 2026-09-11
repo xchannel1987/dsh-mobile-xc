@@ -8,7 +8,7 @@
  * 关闭：localStorage 'dsh-mobile-xc.pwa' === 'off' 时客户端跳过注册并卸载已注册 SW（exports.disablePwa 预留设置项）。
  */
 
-export const SW_VERSION = '202608-xc2'
+export const SW_VERSION = '202609-xc1'
 
 export const MANIFEST_JSON = JSON.stringify(
   {
