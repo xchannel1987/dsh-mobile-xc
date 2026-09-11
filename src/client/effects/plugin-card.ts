@@ -43,6 +43,7 @@ const FIELDS: Array<{ key: string; label: string; hint: string }> = [
   { key: 'dshmarketNavFix', label: 'dshmarket 设置导航修复', hint: '窄屏保留设置导航，防止市场页死路' },
   { key: 'pwaEnabled', label: 'PWA 离线缓存', hint: '关闭后立即卸载缓存，页面走网络' },
   { key: 'drawerRefresh', label: '抽屉刷新按钮', hint: '侧栏底部刷新入口，PWA 无下拉刷新时的手动刷新（默认隐藏）' },
+  { key: 'headerScroll', label: '页头横向滑动', hint: '窄屏下页头标题与 PTC/用量徽标保持单行，溢出部分左右滑动查看' },
 ]
 
 const rowClass = 'dsh-xc-srow'

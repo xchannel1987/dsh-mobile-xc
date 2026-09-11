@@ -23,12 +23,13 @@ const ICON_SIZES = ['192', '512', '180'] as const
  */
 export const XC_SETTINGS_NS = 'dsh-mobile-xc'
 
-/** 移动端配置 schema：滑动开抽屉 / dshmarket 兼容修复 / PWA / 抽屉刷新按钮。 */
+/** 移动端配置 schema：滑动开抽屉 / dshmarket 兼容修复 / PWA / 抽屉刷新按钮 / 页头横向滑动。 */
 export const XcSettings = z.object({
   swipeEnabled: z.boolean().default(true),
   dshmarketNavFix: z.boolean().default(true),
   pwaEnabled: z.boolean().default(true),
   drawerRefresh: z.boolean().default(false),
+  headerScroll: z.boolean().default(true),
 })
 
 /**

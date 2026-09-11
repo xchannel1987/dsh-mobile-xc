@@ -109,6 +109,20 @@ export const SELECTOR_MAP: SelectorEntry[] = [
     fallback: '结构定位 header 下 tabs 行；不变式：标签不被汉堡遮挡',
   },
   {
+    selector: '.wSkVaW_titleCluster',
+    dshVersion: '0.1.5-rc.2',
+    usedBy: 'M6 页头标题簇横向滚动（compat.css.ts + header-scroll.ts）',
+    reason: '标题+徽标簇无 data-* 语义锚（slot 锚在更内层 actions/utilities）；需整簇作滚动容器',
+    fallback: '漂移则 header-scroll 找不到元素、CSS 不命中 → 无横滚，回到 vendor 截断现状（功能不受影响）',
+  },
+  {
+    selector: '.wSkVaW_headerActions',
+    dshVersion: '0.1.5-rc.2',
+    usedBy: 'M6 反制 dsh-token-usage-xc ≤380px 换行 + 徽标不压扁',
+    reason: 'actions 槽容器无更细语义锚；需定向钉住 flex 基准',
+    fallback: '漂移则该规则空转，最坏 = 小屏仍换行长高（即 0.5.8 行为）',
+  },
+  {
     selector: '.VOzbGW_panel',
     dshVersion: '0.1.5-rc.1',
     usedBy: 'M3 设置面板全屏（misc.css.ts）',

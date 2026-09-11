@@ -11,10 +11,12 @@ export interface XcConfig {
   readonly pwaEnabled: boolean
   /** 工作区抽屉刷新按钮（PWA 无下拉刷新时的手动入口；默认隐藏）。 */
   readonly drawerRefresh: boolean
+  /** 页头标题簇横向滑动（窄屏页头单行不换行，溢出内容靠滑）。 */
+  readonly headerScroll: boolean
 }
 
 const KEY = 'dsh-mobile-xc.config'
-const DEFAULTS: XcConfig = { swipeEnabled: true, dshmarketNavFix: true, pwaEnabled: true, drawerRefresh: false }
+const DEFAULTS: XcConfig = { swipeEnabled: true, dshmarketNavFix: true, pwaEnabled: true, drawerRefresh: false, headerScroll: true }
 
 function load(): XcConfig {
   if (typeof localStorage === 'undefined') return { ...DEFAULTS }
