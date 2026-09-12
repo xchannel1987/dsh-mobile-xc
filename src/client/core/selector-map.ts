@@ -206,7 +206,22 @@ export const SELECTOR_MAP: SelectorEntry[] = [
     reason: '面板隐藏态类，无语义锚',
     fallback: '若漂移：删除该规则（保守处理）',
   },
-]
+
+  {
+    selector: '.eGxaPq_slot',
+    dshVersion: '0.1.5-rc.2',
+    usedBy: 'M7 轮次导航 rail 显示（misc.css.ts）',
+    reason: '移动端反制 vendor @container 隐藏需精确圈定 rail 槽容器；轮次刻度无语义锚',
+    fallback: '若漂移：删除该规则（移动端 rail 恢复 vendor 隐藏原状，轮次跳转退化为滚动手翻，功能不受影响）',
+  },
+
+  {
+    selector: '.eGxaPq_frame',
+    dshVersion: '0.1.5-rc.2',
+    usedBy: 'M7 轮次导航 rail 命中换算与焦点（rail-preview.ts）',
+    reason: '两段式 tap 需以 frame 为命中换算坐标原点并用其内部 markPosition/scroller 定位；无语义锚',
+    fallback: '若漂移：rail-preview 的 closest 失配 → 点击走 vendor 原逻辑（单击即跳，预览缺失但不报错）',
+  },]
 
 export interface StructuralAnchors {
   /** vendor shell 覆盖层锚（抽屉/frame 定位依赖）。 */
