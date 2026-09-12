@@ -16,6 +16,7 @@ import { createReconcilerCore } from './core/reconciler-core.ts'
 import { installDebugBadge } from './effects/debug.ts'
 import { installOverlayInteractions, makeSidebarToggle } from './effects/drawer.ts'
 import { installMobileGesture } from './effects/gesture.ts'
+import { installRailPreviewTap } from './effects/rail-preview.ts'
 import { registerDrawerTasks, registerComposerTasks, registerCompatTasks } from './effects/tasks.ts'
 import { installFocusGuard } from './effects/focus-guard.ts'
 import { installXcPluginCard } from './effects/plugin-card.ts'
@@ -225,6 +226,9 @@ window.__ModuleLoader__.load({
 
       // 4) 交互层（Escape / 点外 / 导航自动关；窄屏装配）
       installOverlayInteractions(ctx, toggleSidebar)
+
+      // 4.05) 轮次导航 rail 两段式 tap（点击出预览、再点击跳转；桌面零影响）
+      installRailPreviewTap(ctx)
 
       // 4.1) 手势层（从左边缘滑动打开/关闭抽屉）
       installMobileGesture(ctx, toggleSidebar)

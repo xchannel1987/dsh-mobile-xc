@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.2] - 2026-09-12
+
+### Added
+- 移动端显示对话记录右侧的「轮次导航」rail（每轮一个刻度，点击可跳转到对应轮次）：
+  vendor 自 0.1.5 起在聊天列容器宽度 ≤900px 时用 `@container (width<=900px)` 隐藏
+  `.eGxaPq_slot`（移动端聊天列恒全宽必命中），导致移动端轮次指示器消失。本插件在
+  ≤1023px 下反制恢复显示（`display:block !important`）；桌面 ≥1024px 不受影响，
+  行为仍由 vendor 容器查询决定。哈希类 `.eGxaPq_slot` 已登记 canary，
+  漂移兜底 = 恢复 vendor 隐藏原状（无功能损害）。
+- 移动端轮次导航 rail 改为两段式 tap：「点击先出轮次预览、再点同一刻度跳转」（rail-preview.ts）：
+  第一击在 window 捕获阶段拦截 vendor 直跳，按 vendor itemAtPointer 同源算法换算命中刻度并聚焦对应
+  mark → 触发 vendor onFocus → preview 浮层（轮次 + 摘要）显示 + 刻度 markPreview 高亮；第二击同一刻度
+  放行原 onClick 跳转，并主动失焦回收浮层；点击 rail 外解除武装。触屏原先无 hover、点击即跳（点错即跳错）
+  的体验由此获得「先确认后跳转」的缓冲。桌面 ≥1024px 不装配，vendor hover 预览原样。哈希类
+  `.eGxaPq_frame` 补登记 canary（漂移兜底 = 单击即跳，无功能损害）。
+- 同条 rail 追加移动端触控增强（仍 ≤1023px、桌面零影响）：rail 内移
+  `right:6px` 避开 iOS 屏幕边缘（∓9px）手势区（此前的 28px 贴边热区在真机上
+  常被边缘返回手势抢走点击，表现为"点了没反应"）；`::after` 向左扩展 12px
+  透明命中区（总 ≈40px，符合触控热区直觉，命中仍落在宿主 frame 上，vendor 按
+  clientY 换算轮次不受影响）；刻度线加粗加长（12→18px、2→3px）、active 刻度
+  品牌色高亮 + `frame:active` 按压反馈，触屏可感知点击落点与跳转结果。
+
 ## [0.6.1] - 2026-09-12
 
 ### Fixed

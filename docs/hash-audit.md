@@ -6,6 +6,7 @@
 |---|---|---|---|---|
 | uV2eYG_ | dsh-client-ui-conversation | M2 已登记：card/mirror/row/tools/trailing/add/primary/root（compat.css.ts） | dsh 0.1.1-rc.2 | ✅ M2 登记（11 条） |
 | wSkVaW_ | dsh-client-ui-conversation | M2 已登记：titleRow（汉堡避让） | dsh 0.1.1-rc.2 | ✅ M2 登记 |
+| eGxaPq_ | dsh-client-ui-chat | M7 已登记：slot（轮次导航 rail 移动端显示反制） | dsh 0.1.5-rc.2 | ✅ M7 登记 |
 | VOzbGW_ | dsh-client-ui-settings-general | M3 已登记：panel/nav（全屏纵向 + 导航横滚） | dsh 0.1.1-rc.2 | ✅ M3 登记 |
 | hHd-Xa_ | dsh-client-ui-sidebar | sidebar toggle | dsh 0.1.1-rc.2 | 未使用（M0） |
 | _7KE1Ra_ | dsh-client-ui-model-selection | M2 已登记：trigger/triggerLabel | dsh 0.1.1-rc.2 | ✅ M2 登记 |
