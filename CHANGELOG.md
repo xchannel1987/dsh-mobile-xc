@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.3] - 2026-09-12
+
+### Added
+- 「轮次导航」成为插件可配置项（`turnRail`，默认开启）：关闭后 rail 恢复 vendor
+  窄屏隐藏原状、两段式点击预览一并停用；开关在 设置 → 插件 → 移动端适配 卡片内。
+  门控实现：reconciler 任务把配置投影为 `html[data-xc-turn-rail]` 属性，rail 的 CSS 段与
+  点击拦截均以该属性为总闸（仿 headerScroll 模式），配置变化即时生效、无需刷新。
+### Changed
+- 移动端轮次导航 rail 平时刻度淡化：普通刻度背景降至 ~8% 透明、未加载刻度 ~4.5% 透明
+  （color-mix 双声明，不支持时回退原 border-l4 纯色；不碰 opacity，busy 闪烁动画不受影响），
+  点击预览（markPreview 26px）与当前轮（markActive 28px 品牌色）保持醒目，
+  「平时淡、交互时亮」两级视觉。仅 ≤1023px 生效，桌面零影响。
 ## [0.6.2] - 2026-09-12
 
 ### Added
