@@ -16,6 +16,7 @@
 - **Scrim 遮罩**：点击遮罩关闭抽屉，符合移动端交互习惯
 - **手势支持**：支持滑动打开/关闭抽屉（可配置）
 - **Escape 键关闭**：键盘用户友好
+- **轮次导航**：对话右侧轮次刻度条，平时淡显，点击先预览轮次内容、再点同一刻度跳转
 - **页头横向滑动**：窄屏页头保持单行，会话名与 PTC/用量徽标溢出时可左右滑动，右缘渐隐提示、滑到尽头自动撤除
 
 ### 🎨 玻璃卡片设计
@@ -67,9 +68,15 @@ npm install dsh-mobile-xc
 
 | 选项 | 类型 | 默认值 | 说明 |
 |------|------|--------|------|
-| enabled | boolean | true | 启用/禁用移动端适配 |
-| gestureMode | 'swipe' | 'follow' | 'off' | 'swipe' | 抽屉手势模式 |
-| compatFixes | boolean | true | 第三方插件兼容修复 |
+| swipeEnabled | boolean | true | 从屏幕左边缘右滑打开工作区抽屉 |
+| dshmarketNavFix | boolean | true | 窄屏保留设置导航，防止市场页死路 |
+| pwaEnabled | boolean | true | PWA 离线缓存 |
+| drawerRefresh | boolean | false | 侧栏底部刷新入口（PWA 无下拉刷新时的手动刷新） |
+| headerScroll | boolean | true | 页头标题与 PTC/用量徽标保持单行，溢出左右滑动 |
+| turnRail | boolean | true | 对话右侧轮次刻度条：平时淡显，点击预览轮次、再点同一刻度跳转 |
+
+
+
 
 ## 🔗 兼容性矩阵
 

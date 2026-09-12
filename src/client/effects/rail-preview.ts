@@ -21,6 +21,7 @@
  */
 import type { EffectHost } from '../breakpoints.ts'
 import { installMobileEffect } from '../breakpoints.ts'
+import { getConfig } from '../config.ts'
 
 /** vendor TurnNavigator 固定间距与内边距（与 itemAtPointer 同源）。 */
 const TURN_SPACING_PX = 10
@@ -49,12 +50,41 @@ function focusMarkAt(frame: HTMLElement, index: number): void {
   button?.focus({ preventScroll: true })
 }
 
+
+/** html 级功能总闸属性：存在 = 轮次导航开启（config.turnRail 驱动，CSS 与 JS 均看它）。 */
+export const TURN_RAIL_ATTR = 'data-xc-turn-rail'
+
+/**
+ * 轮次导航门控任务：随 reconciler 周期把配置状态投影到 html 属性。
+ *  - turnRail=true  → <html data-xc-turn-rail>  → misc.css 的 rail 段生效、点击拦截生效；
+ *  - turnRail=false → 属性摘除 → rail 恢复 vendor 原状（窄屏默认隐藏）。
+ * 属性在非会话页 / 选择器漂移时同样摘除（保证不误伤桌面）。
+ */
+export function createTurnRailTask() {
+  return {
+    name: 'turn-rail',
+    scopes: ['*'],
+    ensure() {
+      const html = document.documentElement
+      if (!getConfig().turnRail || document.querySelector('[data-slot="conversation.chat"], [data-mobile-nav="frame"] [class*="eGxaPq_slot"]') === null) {
+        html.removeAttribute(TURN_RAIL_ATTR)
+        return
+      }
+      html.setAttribute(TURN_RAIL_ATTR, '')
+    },
+    dispose() {
+      document.documentElement.removeAttribute(TURN_RAIL_ATTR)
+    },
+  }
+}
+
 export function installRailPreviewTap(ctx: EffectHost): void {
   installMobileEffect(ctx, 'dsh-mobile-xc: rail preview tap', () => {
     // 武装态：上次第一击命中的 frame + 刻度下标。第二击命中同一组才放行跳转。
     let armed: { frame: HTMLElement; index: number } | null = null
 
     const onClickCapture = (event: MouseEvent): void => {
+      if (!document.documentElement.hasAttribute(TURN_RAIL_ATTR)) return
       const target = event.target as Element | null
       const frame = target === null ? null : target.closest<HTMLElement>(FRAME_SELECTOR)
       if (frame === null) {

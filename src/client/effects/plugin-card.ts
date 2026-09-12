@@ -44,6 +44,7 @@ const FIELDS: Array<{ key: string; label: string; hint: string }> = [
   { key: 'pwaEnabled', label: 'PWA 离线缓存', hint: '关闭后立即卸载缓存，页面走网络' },
   { key: 'drawerRefresh', label: '抽屉刷新按钮', hint: '侧栏底部刷新入口，PWA 无下拉刷新时的手动刷新（默认隐藏）' },
   { key: 'headerScroll', label: '页头横向滑动', hint: '窄屏下页头标题与 PTC/用量徽标保持单行，溢出部分左右滑动查看' },
+  { key: 'turnRail', label: '轮次导航', hint: '对话右侧轮次刻度条：平时淡显，点击先预览轮次、再点同一刻度跳转' },
 ]
 
 const rowClass = 'dsh-xc-srow'
@@ -189,7 +190,7 @@ export function installXcPluginCard(ctx: unknown, react: Reactish): void {
             'span',
             { className: 'YyYd_a_headText' },
             react.createElement('span', { className: 'YyYd_a_name' }, '移动端适配'),
-            react.createElement('span', { className: 'YyYd_a_description' }, '移动端适配选项：跟手拖拽 / 市场兼容 / 刷新按钮 / PWA'),
+            react.createElement('span', { className: 'YyYd_a_description' }, '移动端适配选项：滑动抽屉 / 市场兼容 / 刷新按钮 / PWA / 页头滑动 / 轮次导航'),
           ),
           react.createElement(
             'svg',
