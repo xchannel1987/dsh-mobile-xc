@@ -16,44 +16,34 @@ export const inject = ['webServer'] as const
 const ICON_SIZES = ['192', '512', '180'] as const
 
 /**
- * 插件配置命名空间（dshmarket 同款：设置 -> 插件 -> dsh-mobile-xc 配置卡）。
- * 原用 @deepseek-ai/dsh-settings@0.1.1-rc.2 的 settingsNamespace() 品牌化；该包
- * 0.1.5 起宿主只保留 SettingsProvider 服务（顶层 helper 已移除、npm 停更于
- * 0.1.1-rc.2），命名空间本质是 lowercase-hyphen 字符串，此处本地化并断依赖。
+ * 插件配置命名空间（设置 -> 插件 -> dsh-mobile-xc 配置卡）。
+ * DSH >= 0.1.7 起，设置命名空间 id 恒等于「profile 条目 id」，而条目 id 由本插件
+ * bundle 补丁 cordis.patch.yml 的 `insert[].id` 决定——两者必须一致（客户端
+ * configForms.get(ns) 按此 id 查命名空间），因此该文件里的 id 也必须是 dsh-mobile-xc。
  */
 export const XC_SETTINGS_NS = 'dsh-mobile-xc'
 
-/** 移动端配置 schema：滑动开抽屉 / dshmarket 兼容修复 / PWA / 抽屉刷新按钮 / 页头横向滑动。 */
+/**
+ * 移动端配置 schema：滑动开抽屉 / dshmarket 兼容修复 / PWA / 抽屉刷新按钮 / 页头横向滑动 / 轮次导航。
+ * 字段标记 volatile（等价 schemastery >= 3.18.4 的 `.volatile()`，用 `.extra()` 写法以兼容
+ * profile 内提升的 3.18.1）：DSH >= 0.1.7 的设置服务只把「含 volatile 字段」的 Config
+ * 投影为可配置命名空间，未标记则整个命名空间不出现在 describe() 里。
+ */
 export const XcSettings = z.object({
-  swipeEnabled: z.boolean().default(true),
-  dshmarketNavFix: z.boolean().default(true),
-  pwaEnabled: z.boolean().default(true),
-  drawerRefresh: z.boolean().default(false),
-  headerScroll: z.boolean().default(true),
+  swipeEnabled: z.boolean().default(true).extra('volatile', true),
+  dshmarketNavFix: z.boolean().default(true).extra('volatile', true),
+  pwaEnabled: z.boolean().default(true).extra('volatile', true),
+  drawerRefresh: z.boolean().default(false).extra('volatile', true),
+  headerScroll: z.boolean().default(true).extra('volatile', true),
+  turnRail: z.boolean().default(true).extra('volatile', true),
 })
 
 /**
- * settings 服务最小结构面（字符串名注入）。register(ns, schema, { base }) 契约
- * 在 0.1.1-rc.2 与 0.1.5-rc.1 之间未变，且注册绑定调用方 fiber（卸载自动注销）。
- * 服务端不消费配置变化（客户端经 settingsScope 订阅），因此不需要旧
- * installSettingsSection 的 watch/setSource 编排——内联最小等价实现即可。
+ * 插件 Config：DSH >= 0.1.7 由宿主插件「导出的 Config」声明设置命名空间
+ * （命名空间 id = profile 条目 id = XC_SETTINGS_NS）；旧版 ctx.settings.register
+ * 接口已移除，客户端改经 configForms.get(ns) 读写。
  */
-interface SettingsFace {
-  register(ns: string, schema: unknown, options: { base?: unknown }): {
-    get(): unknown
-    watch(callback: (next: unknown, prev: unknown) => void): () => void
-  }
-}
-
-/** 以 fiber 注入 settings 服务并登记命名空间；服务缺失时静默跳过。 */
-function registerSettingsNamespace(ctx: Context, ns: string, schema: unknown, entry: Record<string, unknown>): void {
-  const inject = ctx.inject as unknown as (names: string[], cb: (sctx: { settings?: SettingsFace }) => void) => void
-  inject(['settings'], (sctx) => {
-    const settings = sctx.settings
-    if (settings === undefined || typeof settings.register !== 'function') return
-    settings.register(ns, schema, { base: entry })
-  })
-}
+export const Config = XcSettings
 
 interface ResFace {
   writeHead(code: number, headers?: Record<string, string>): void
@@ -81,8 +71,9 @@ const readIcon = (size: string) =>
   readFile(fileURLToPath(new URL('../assets/pwa/icon-' + size + '.png', import.meta.url)))
 
 export function apply(ctx: Context): void {
-  // 插件配置卡（设置 -> 插件 -> dsh-mobile-xc）；无 settings 服务时静默跳过
-  registerSettingsNamespace(ctx, XC_SETTINGS_NS, XcSettings, {})
+  // 设置命名空间由导出的 Config（volatile 字段）+ bundle 补丁的条目 id 声明，
+  // 无需运行时注册（DSH >= 0.1.7 已移除 ctx.settings.register）。
+  // 客户端经 configForms.get('dsh-mobile-xc') 读写，见 src/client/index.ts。
 
   const ws = (ctx as unknown as { webServer?: WsFace }).webServer
   if (ws === undefined) return

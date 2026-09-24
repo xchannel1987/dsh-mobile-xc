@@ -9,6 +9,10 @@
 
 **DSH Web 移动端 UI 完美适配插件** —— 整合多个移动端插件的最优设计，为 DeepSeek Harness 提供原生的移动端体验。
 
+> **DSH 0.1.7 兼容（`>=0.1.7-rc.1`）**：设置入口现在位于新版「插件页」（Plugins 页）的
+> `dsh-mobile-xc` 包内（`plugins.bundle.config`，与 modsearch / 官方 subagent 同款机制）；
+> 旧版「设置 → 插件」入口已随 0.1.7 设置系统重构移除。
+
 ## ✨ 核心特性
 
 ### 📱 移动端抽屉导航

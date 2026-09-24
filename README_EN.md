@@ -9,6 +9,8 @@
 
 **The ultimate mobile UI adaptation plugin for DeepSeek Harness** — integrating the best designs from multiple mobile plugins to deliver a native mobile experience.
 
+> **DSH 0.1.7 compatible (`>=0.1.7-rc.1`)**: settings now live on the new **Plugins** page under the `dsh-mobile-xc` package (`plugins.bundle.config`, same mechanism as modsearch / official subagent); the old Settings → Plugins entry was removed in the 0.1.7 settings rework.
+
 ## ✨ Core Features
 
 ### 📱 Mobile Drawer Navigation

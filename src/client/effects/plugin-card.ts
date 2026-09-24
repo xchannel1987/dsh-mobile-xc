@@ -1,7 +1,7 @@
 /**
- * plugin-card — 在「设置 → 插件 → 可配置」注册 dsh-mobile-xc 配置卡（dshmarket 同款机制）。
- * 命名空间若只注册 schema 而没有卡，可配置 tab 不会渲染任何东西；
- * 本模块按 settings.plugin.item 的 keyed 契约注册卡组件（key = 命名空间）。
+ * plugin-card — 在「设置 → 内置插件」注册 dsh-mobile-xc 配置页签（settings.plugins.tab）。
+ * 命名空间若只注册 schema 而没有页签，可配置 tab 不会渲染任何东西；
+ * DSH >= 0.1.7：本模块按 settings.plugins.tab 契约注册页签组件（id = 命名空间）。
  * 全链路形状防御 + try/catch：任何异常不影响插件 entry 加载。
  */
 
@@ -25,13 +25,14 @@ interface SlotsFace {
   register(options: Record<string, unknown>, component: unknown): unknown
 }
 
-interface SettingsScopeFace {
-  bind(o: { namespace: string }): ScopeLike
+/** DSH >= 0.1.7：客户端设置服务为 configForms，get(namespace) 直接返回命名空间 scope。 */
+interface ConfigFormsFace {
+  get(ns: string): ScopeLike
 }
 
 interface CtxFace {
   slots?: unknown
-  settingsScope?: unknown
+  configForms?: unknown
   get?(name: string): unknown
   effect(fn: () => unknown, label?: string): unknown
 }
@@ -57,20 +58,25 @@ export function installXcPluginCard(ctx: unknown, react: Reactish): void {
   try {
     const face = ctx as CtxFace
     const slots = (face.slots ?? (typeof face.get === 'function' ? face.get('slots') : undefined)) as SlotsFace | undefined
-    const scopeFace = (face.settingsScope ?? (typeof face.get === 'function' ? face.get('settingsScope') : undefined)) as SettingsScopeFace | undefined
+    const scopeFace = (face.configForms ?? (typeof face.get === 'function' ? face.get('configForms') : undefined)) as ConfigFormsFace | undefined
     if (slots === undefined || typeof slots.inject !== 'function') return
-    if (scopeFace === undefined || typeof scopeFace.bind !== 'function') return
+    if (scopeFace === undefined || typeof scopeFace.get !== 'function') return
     let scope: ScopeLike | null = null
     try {
-      scope = scopeFace.bind({ namespace: XC_NS })
+      scope = scopeFace.get(XC_NS)
     } catch {
       return
     }
     const s = scope
     if (s === null || typeof s.getSnapshot !== 'function' || typeof s.set !== 'function') return
 
-    const CardComponent = (): unknown => {
+    const CardComponent = (props?: { view?: string }): unknown => {
+      // DSH >= 0.1.7 插件页（plugins.bundle.config）以 view='page' 渲染整页表单；
+      // 旧宿主/兜底走折叠卡。
+      const view = props !== null && props !== undefined ? props.view : undefined
       const [open, setOpen] = react.useState<boolean>(false)
+      const page = view === 'page'
+      const expanded = page || open
       const read = (): Record<string, boolean> => {
         try {
           const v = resolveSettingsValue(s.getSnapshot())
@@ -174,6 +180,15 @@ export function installXcPluginCard(ctx: unknown, react: Reactish): void {
         )
       })
       // 官方 PluginCard 卡壳（YyYd_a_* 由 settings-plugins 注入全局可用）
+      if (page) {
+        // 插件页整页表单：页头已由插件页标题承担，直接渲染字段行（参照 modsearch）。
+        return react.createElement(
+          'div',
+          { 'data-xc-page': true },
+          react.createElement('h4', { className: 'dsh-xc-pagesec' }, '移动端适配'),
+          react.createElement('div', { className: 'YyYd_a_body' }, ...rows),
+        )
+      }
       return react.createElement(
         'li',
         { className: 'YyYd_a_card' + (open ? ' YyYd_a_cardOpen' : ''), 'data-xc-card': true },
@@ -225,17 +240,20 @@ export function installXcPluginCard(ctx: unknown, react: Reactish): void {
         '.dsh-xc-switch.on{background:var(--dsw-alias-button-info-fill,#3b82f6)}',
         '.dsh-xc-switch input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}',
         '.dsh-xc-switch-thumb{position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.35);transition:transform .18s var(--ds-ease-in-out,ease);pointer-events:none}',
-        '.dsh-xc-switch.on .dsh-xc-switch-thumb{transform:translateX(16px)}'
+        '.dsh-xc-switch.on .dsh-xc-switch-thumb{transform:translateX(16px)}',
+        '.dsh-xc-pagesec{margin:0 0 8px;font-size:14px;line-height:20px;font-weight:500;color:var(--dsw-alias-label-primary,#e2e8f0)}'
       ].join('')
       document.head.appendChild(styleTag)
       
-      // 官方形状：工厂用 generator（keyed 槽位按此分发）
-      const remove = slots.inject('settings.plugin.item', function* () {
+      // DSH >= 0.1.7：第三方插件配置挂到新「插件页」的 plugins.bundle.config
+      //（keyed，key=npm 包名；参照 modsearch / 官方 subagent）。settings.plugin.item
+      // 与 settings.plugins.tab 均已随 0.1.7 设置系统重构不再适用。
+      const remove = slots.inject('plugins.bundle.config', function* () {
         yield slots.register(
           {
-            name: 'settings.plugin.item',
+            name: 'plugins.bundle.config',
             key: XC_NS,
-            label: () => XC_NS,
+            order: 25,
           },
           CardComponent,
         )

@@ -1,5 +1,9 @@
 # dsh-mobile-xc bundle patch.
 # 由 `dsh plugin --profile web add dsh-mobile-xc` 自动挂载，无需手改 cordis.patch.yml。
+#
+# 注意：insert[].id 就是本插件的「设置命名空间 id」（DSH >= 0.1.7 起命名空间 id 恒等于
+# profile 条目 id），客户端以 configForms.get('dsh-mobile-xc') 查它，因此这里必须与
+# src/index.ts 的 XC_SETTINGS_NS 一致，不能退回自动生成的短名 `mobile-xc`。
 - insert:
-    - id: mobile-xc
+    - id: dsh-mobile-xc
       name: dsh-mobile-xc

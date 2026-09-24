@@ -26,7 +26,7 @@ import { installComposerAutoCollapse } from './effects/composer.ts'
 /**
  * 客户端上下文最小面（本地化类型）。原 @deepseek-ai/dsh-client-runtime 已从
  * dsh 宿主移除（npm 停更于 0.1.1-rc.2）；运行时实际只消费 effect/get，
- * 其余服务面（slots/settingsScope）由使用方经形状防御按需取用。
+ * 其余服务面（slots/configForms）由使用方经形状防御按需取用。
  */
 interface ClientContext {
   effect<T>(fn: () => T | (() => void) | undefined, label?: string): void
@@ -78,22 +78,23 @@ window.__ModuleLoader__.load({
         return () => {}
       }, 'dsh-mobile-xc: pwa flag')
 
-      // 0.1) 插件配置命名空间订阅（dshmarket 同款：设置 -> 插件 -> dsh-mobile-xc）。
-      //      句柄形状：bind({namespace}) -> { getSnapshot(), set/unset, subscribe(listener) }；
-      //      全程形状防御 + try/catch——任何异常都不允许阻断插件加载（早期版本曾因此白屏）。
+      // 0.1) 插件配置命名空间订阅（设置 -> 插件 -> dsh-mobile-xc）。
+      //      DSH >= 0.1.7：客户端服务由 settingsScope 更名为 configForms，句柄改为
+      //      get(ns) -> { getSnapshot(), set/unset, subscribe(listener) }（命名空间 id 即
+      //      profile 条目 id）；全程形状防御 + try/catch——任何异常都不允许阻断插件加载。
       ctx.effect(() => {
         try {
-          const anyCtx = ctx as unknown as { settingsScope?: unknown; get?(name: string): unknown }
-        const face = (anyCtx.settingsScope ?? (typeof anyCtx.get === 'function' ? anyCtx.get('settingsScope') : undefined)) as
+          const anyCtx = ctx as unknown as { configForms?: unknown; get?(name: string): unknown }
+          const face = (anyCtx.configForms ?? (typeof anyCtx.get === 'function' ? anyCtx.get('configForms') : undefined)) as
             | {
-                bind(o: { namespace: string }): {
+                get(ns: string): {
                   getSnapshot(): unknown
                   subscribe(listener: () => void): () => void
                 }
               }
             | undefined
-          if (face === undefined || typeof face.bind !== 'function') return () => {}
-          const scope = face.bind({ namespace: 'dsh-mobile-xc' })
+          if (face === undefined || typeof face.get !== 'function') return () => {}
+          const scope = face.get('dsh-mobile-xc')
           if (scope === undefined || scope === null) return () => {}
           const readOnce = (): unknown => {
             try {
@@ -269,8 +270,8 @@ window.__ModuleLoader__.load({
 
     exports.apply = apply
     exports.disablePwa = disablePwa
-    // 声明所需客户端服务面（由运行时注入为 ctx 属性）
-    exports.inject = ['slots', 'locale', 'settingsScope']
+    // 声明所需客户端服务面（由运行时注入为 ctx 属性）；DSH >= 0.1.7 用 configForms。
+    exports.inject = ['slots', 'locale', 'configForms']
     return module.exports
   },
 })

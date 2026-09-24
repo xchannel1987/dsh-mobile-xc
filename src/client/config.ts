@@ -36,8 +36,9 @@ let current: XcConfig = load()
 const listeners = new Set<(c: XcConfig) => void>()
 
 /**
- * settingsScope 返回的值可能是「描述符」（真实解析值在 value 子对象，
+ * 设置服务返回的值可能是「描述符」（真实解析值在 value 子对象，
  * 顶层带 status/base/revision 等元数据键）；统一归一化为纯值对象。
+ * DSH >= 0.1.7 的 configForms.get(ns).getSnapshot() 仍是该形状。
  */
 export function resolveSettingsValue(raw: unknown): unknown {
   if (raw !== null && typeof raw === 'object') {

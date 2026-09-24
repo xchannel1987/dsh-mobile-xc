@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.6] - 2026-09-24
+
+### Changed
+- **适配 DSH 0.1.7**：设置命名空间改由宿主导出的 `Config` 声明（各字段标 `volatile`，
+  否则不会投影到 describe() / 设置页）；插件 `cordis.patch.yml` 的 `insert[].id` 与命名空间
+  统一为 `dsh-mobile-xc`（0.1.7 起命名空间 id 恒等于 profile 条目 id，客户端以
+  `configForms.get('dsh-mobile-xc')` 查询）。
+- **设置入口移到新版「插件页」**（与 modsearch、官方 subagent 同款机制）：注册到
+  `plugins.bundle.config`（keyed，key = npm 包名），`view='page'` 时渲染整页配置表单；
+  旧 `settings.plugin.item`（0.1.7 已移除）不再适用，保留折叠卡作宿主兜底。
+- `engines.dsh`：`>=0.1.1-rc.2` → `>=0.1.7-rc.1`。
+
 ## [0.6.3] - 2026-09-12
 
 ### Added
