@@ -217,7 +217,15 @@ window.__ModuleLoader__.load({
           childList: true,
           subtree: true,
           attributes: true,
-          attributeFilter: ['style', 'class', 'data-sidebar-collapsed', 'data-details-collapsed', 'data-rightbar-collapsed', 'data-rightbar-fullscreen'],
+          attributeFilter: [
+            'style',
+            'class',
+            'data-sidebar-collapsed',
+            'data-sidebar-drawer', // 0.2.2：<768px vendor 原生抽屉模式开关，决定插件是否让位
+            'data-details-collapsed',
+            'data-rightbar-collapsed',
+            'data-rightbar-fullscreen',
+          ],
         })
         core.activate()
         return () => {
@@ -255,6 +263,7 @@ window.__ModuleLoader__.load({
             ' shell=' + (structural.shellOverlay ? 'ok' : 'MISS') +
             ' rightbar=' + (structural.rightbarContract ? 'ok' : 'MISS') +
             ' frame=' + (frameShape && structural.shellOverlay ? 'ok' : 'MISS') +
+            ' drawer=' + (structural.vendorDrawer ? 'vendor' : 'plugin') +
             ' composer=' + (structural.composerSlot ? 'ok' : 'MISS') +
             ' hash=' + hashed.hits + '/' + hashed.declared
           )

@@ -9,6 +9,10 @@
 
 **The ultimate mobile UI adaptation plugin for DeepSeek Harness** — integrating the best designs from multiple mobile plugins to deliver a native mobile experience.
 
+> **DSH 0.2.2 adapted (`>=0.1.7-rc.1`, verified on 0.2.2-rc.1)**: 0.2.2 ships a vendor-native drawer
+> below 768px (`frame[data-sidebar-drawer]`); the plugin now yields to it and anchors on semantic classes
+> (see CHANGELOG 0.6.9).
+>
 > **DSH 0.1.7 compatible (`>=0.1.7-rc.1`)**: settings now live on the new **Plugins** page under the `dsh-mobile-xc` package (`plugins.bundle.config`, same mechanism as modsearch / official subagent); the old Settings → Plugins entry was removed in the 0.1.7 settings rework.
 
 ## ✨ Core Features
@@ -77,7 +81,7 @@ Configure via DSH Settings → "Mobile UI" section:
 
 | Package | Verified Version | Status |
 |---------|-----------------|--------|
-| DSH (vendor) | 0.1.1-rc.2 | ✅ 18 selector mappings |
+| DSH (vendor) | 0.2.2-rc.1 | ✅ 32 selector mappings |
 | dshmarket | 1.20.x | ✅ Nav dead-end fix |
 | dsh-better-sidebar | 0.15.2 | ✅ Peaceful coexistence |
 | dsh-token-usage | 0.2.16 | ✅ Compatibility registered |

@@ -1,13 +1,19 @@
 /**
  * 移动布局（DR1/DR7）：overlay 抽屉 + safe-area 基线 + 遮罩 + 汉堡。
  * 规则全部落在 @media (max-width: 1023px)；桌面由 (min-width: 1024px) 显式隐藏插件元素。
- * 关键约束：抽屉打开态必须 transform:none，禁止 translateX(0)
- * （identity transform 会成为 fixed 后代包含块，砸坏 portal 进侧栏的设置对话框）。
+ * 关键约束：
+ *  1. 抽屉打开态必须 transform:none，禁止 translateX(0)
+ *     （identity transform 会成为 fixed 后代包含块，砸坏 portal 进侧栏的设置对话框）。
+ *  2. vendor >= 0.2.2 在 <768px 自带原生抽屉（frame[data-sidebar-drawer]，侧栏绝对定位 +
+ *     drawerMask + leadingSeat 汉堡）：此时 frame 直系子变成
+ *     [drawerMask, sidebarCol, centerCol, rightbarCol, bottomRow, overlayLayer, leadingSeat]，
+ *     按序号钉列会把聊天列（centerCol）钉进 0 宽列 -> 移动端整页白屏（v0.6.8 事故）。
+ *     所以抽屉/列布局规则全部用 :not([data-sidebar-drawer]) 让位，只保留安全区/键盘契约。
  */
 
 const LINES = [
   '@media (max-width: 1023px) {',
-  '  /* AppFrame：聊天列恒全宽；侧栏/详情列出流为浮层抽屉 */',
+  '  /* AppFrame 公共（与抽屉归属无关）：安全区 / 键盘高度 / border-box */',
   '  /* 必须 border-box（v0.6.8 修复）：vendor .pI_x6G_frame 是 height:100% + box-sizing:content-box，',
   '     本插件又给它加 padding-top = 刘海高度。content-box 下 padding 不占高度额度，整帧总高',
   '     = 视口高 + inset，撑破 #root(100dvh, overflow:visible) -> **文档本身变成可纵向滚动**：',
@@ -17,20 +23,23 @@ const LINES = [
   '  [data-mobile-nav="frame"] {',
   '    box-sizing: border-box !important;',
   '    position: relative !important;',
-  '    grid-template-columns: minmax(0, 1fr) 0 0 !important;',
   '    padding-top: env(safe-area-inset-top, 0px) !important;',
   '    /* 软键盘在场时 effects/keyboard.ts 写入 --dsh-xc-frame-h（= visualViewport 可视底边），',
   '       帧收窄到键盘上沿：composer 不再被键盘盖住，WebKit 也不需要自己把页面推上去',
   '       （那一推正是"键盘弹起空隙过大、收起后页面回不去"的来源）*/',
   '    height: var(--dsh-xc-frame-h, 100%) !important;',
   '  }',
-  '  /* 三列显式钉位：侧栏列出流后剩余项不随 auto-placement 左移（TecFancy 踩坑） */',
-  '  [data-mobile-nav="frame"] > :first-child { grid-column: 1; }',
-  '  [data-mobile-nav="frame"] > :nth-child(2) { grid-column: 1; }',
-  '  [data-mobile-nav="frame"] > :nth-child(3) { grid-column: 3; }',
+  '',
+  '  /* ---- 0.2.2 让位：vendor 原生抽屉模式下不再改写列布局 ---- */',
+  '  [data-mobile-nav="frame"]:not([data-sidebar-drawer]) {',
+  '    grid-template-columns: minmax(0, 1fr) 0 0 !important;',
+  '  }',
+  '  /* 用语义哈希类钉位（0.2.2 起不能再按 :nth-child 序号：直系子已含 drawerMask/leadingSeat）*/',
+  '  [data-mobile-nav="frame"]:not([data-sidebar-drawer]) > [class*="_centerCol"] { grid-column: 1; }',
+  '  [data-mobile-nav="frame"]:not([data-sidebar-drawer]) > [class*="_rightbarCol"] { grid-column: 3; }',
   '',
   '  /* 左抽屉（侧栏） */',
-  '  [data-mobile-nav="frame"] > [data-mobile-nav="drawer"] {',
+  '  [data-mobile-nav="frame"]:not([data-sidebar-drawer]) > [data-mobile-nav="drawer"] {',
   '    position: absolute !important;',
   '    inset: 0 auto 0 0 !important;',
   '    width: max-content;',
@@ -42,12 +51,12 @@ const LINES = [
   '    padding-top: env(safe-area-inset-top, 0px) !important;',
   '    border-right: none !important;',
   '  }',
-  '  [data-mobile-nav="frame"]:not([data-sidebar-collapsed]) > [data-mobile-nav="drawer"] {',
+  '  [data-mobile-nav="frame"]:not([data-sidebar-drawer]):not([data-sidebar-collapsed]) > [data-mobile-nav="drawer"] {',
   '    transform: none !important;',
   '  }',
   '',
   '  /* 右抽屉（details）：与左抽屉对称 */',
-  '  [data-mobile-nav="frame"] > [data-mobile-nav="details"] {',
+  '  [data-mobile-nav="frame"]:not([data-sidebar-drawer]) > [data-mobile-nav="details"] {',
   '    position: absolute !important;',
   '    inset: 0 0 0 auto !important;',
   '    width: max-content;',
@@ -58,7 +67,7 @@ const LINES = [
   '    background: var(--dsw-alias-bg-layer-1, #ffffff);',
   '    padding-top: env(safe-area-inset-top, 0px) !important;',
   '  }',
-  '  [data-mobile-nav="frame"]:not([data-details-collapsed]):not([data-rightbar-collapsed]) > [data-mobile-nav="details"] {',
+  '  [data-mobile-nav="frame"]:not([data-sidebar-drawer]):not([data-details-collapsed]):not([data-rightbar-collapsed]) > [data-mobile-nav="details"] {',
   '    transform: none !important;',
   '  }',
   /* vendor 原生右栏全屏态（<768px 自动；会话头右上 ExpandButton 打开）时强制解除
@@ -77,12 +86,12 @@ const LINES = [
   '    background: var(--dsw-alias-bg-mask-2, rgba(10, 14, 23, 0.42));',
   '    -webkit-tap-highlight-color: transparent;',
   '  }',
-  '  [data-mobile-nav="frame"]:not([data-sidebar-collapsed]) > [data-mobile-nav="scrim"],',
-  '  [data-mobile-nav="frame"]:not([data-details-collapsed]):not([data-rightbar-collapsed]) > [data-mobile-nav="scrim"] {',
+  '  [data-mobile-nav="frame"]:not([data-sidebar-drawer]):not([data-sidebar-collapsed]) > [data-mobile-nav="scrim"],',
+  '  [data-mobile-nav="frame"]:not([data-sidebar-drawer]):not([data-details-collapsed]):not([data-rightbar-collapsed]) > [data-mobile-nav="scrim"] {',
   '    display: block;',
   '  }',
   '',
-  '  /* 汉堡：safe-area 偏移 + 44px 触控热区 */',
+  '  /* 汉堡：safe-area 偏移 + 44px 触控热区（vendor 原生抽屉模式下不注入，见 drawer.ts）*/',
   '  .dsh-xc-ham {',
   '    position: fixed;',
   '    top: calc(10px + env(safe-area-inset-top, 0px));',

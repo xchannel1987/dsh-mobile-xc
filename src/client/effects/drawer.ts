@@ -20,6 +20,29 @@ export function findFrame(): HTMLElement | null {
   return overlay === null ? null : (overlay.parentElement as HTMLElement)
 }
 
+/**
+ * vendor 原生抽屉模式（DSH >= 0.2.2，viewport < 768px）：
+ * frame 带 data-sidebar-drawer，侧栏由 vendor 自己做成浮层抽屉（drawerMask + leadingSeat 汉堡）。
+ * 插件此时必须让位：列布局/抽屉/遮罩/汉堡全不接管（否则按序号钉列会把聊天列推进 0 宽列 = 白屏）。
+ * 该属性随视口宽度变化（768 档），CSS 用 :not([data-sidebar-drawer]) 让位，JS 侧每次 flush 现查。
+ */
+export function vendorDrawerMode(f: HTMLElement | null): boolean {
+  return f !== null && f.hasAttribute('data-sidebar-drawer')
+}
+
+/**
+ * 抽屉（侧栏列）元素：
+ *  - 优先语义哈希类 `_sidebarCol`（0.1.x ~ 0.2.2 各类名前缀不同但后缀稳定）；
+ *  - 回退首个直系子元素，但要排除 0.2.2 新增的 `_drawerMask`（全屏遮罩，不是抽屉本体）。
+ */
+export function findDrawerCol(f: HTMLElement): Element | null {
+  const anchored = f.querySelector(':scope > [class*="_sidebarCol"], :scope > [data-sidebar-col]')
+  if (anchored !== null) return anchored
+  const first = f.firstElementChild
+  if (first !== null && first.matches('[class*="_drawerMask"], [data-sidebar-mask]')) return null
+  return first
+}
+
 /** layout 服务的最小结构面。 */
 export interface LayoutFace {
   toggleSidebar(): void
@@ -69,7 +92,7 @@ export function createFrameMarkerTask(): ReconcilerTask {
       frame = f
       if (f === null) return
       f.setAttribute('data-mobile-nav', 'frame')
-      const drawer = f.firstElementChild
+      const drawer = findDrawerCol(f)
       if (drawer !== null) drawer.setAttribute('data-mobile-nav', 'drawer')
       const overlay = f.querySelector(':scope > [data-shell-overlay]')
       const details = findDetailsCol(f)
@@ -87,7 +110,7 @@ export function createFrameMarkerTask(): ReconcilerTask {
       f.removeAttribute('data-mobile-nav')
       f.removeAttribute('data-xc-drawer')
       f.removeAttribute('data-xc-details')
-      const drawer = f.firstElementChild
+      const drawer = findDrawerCol(f)
       if (drawer !== null) drawer.removeAttribute('data-mobile-nav')
       const details = findDetailsCol(f)
       if (details !== null) details.removeAttribute('data-mobile-nav')
@@ -113,13 +136,40 @@ export function createDrawerChromeTask(toggleSidebar: () => void): ReconcilerTas
     event.stopPropagation()
     window.location.reload()
   }
+  /** 移除插件注入的三个 chrome 节点（vendor 原生抽屉接管 / 卸载时调用）。 */
+  const removeChrome = (): void => {
+    if (ham !== null) {
+      ham.removeEventListener('click', onHamClick)
+      ham.remove()
+      ham = null
+    }
+    if (scrim !== null) {
+      scrim.removeEventListener('click', onScrimClick)
+      scrim.remove()
+      scrim = null
+    }
+    if (refresh !== null) {
+      refresh.removeEventListener('click', onRefreshClick)
+      refresh.remove()
+      refresh = null
+    }
+  }
   return {
     name: 'drawer-chrome',
     scopes: ['*'],
     ensure() {
       const f = findFrame()
       frame = f
-      if (f === null) return
+      if (f === null) {
+        removeChrome()
+        return
+      }
+      // 0.2.2+ vendor 原生抽屉模式（<768px）：汉堡在 leadingSeat 里、遮罩是 drawerMask，
+      // 插件再注入一套会叠在上面对打（双汉堡/双遮罩），此处整体让位。
+      if (vendorDrawerMode(f)) {
+        removeChrome()
+        return
+      }
       if (ham === null) {
         const b = document.createElement('button')
         b.type = 'button'
@@ -151,7 +201,10 @@ export function createDrawerChromeTask(toggleSidebar: () => void): ReconcilerTas
           b.textContent = '\u5237\u65b0'
           b.addEventListener('click', onRefreshClick)
           // 优先挂进 vendor 侧栏底部操作区；找不到则挂在抽屉尾（CSS 兜底布局）
-          const footer = f.querySelector('[data-mobile-nav="drawer"] [class*="footerActions"], [data-mobile-nav="drawer"] [class*="footArea"]')
+          const drawerCol = findDrawerCol(f)
+          const footer = drawerCol === null
+            ? null
+            : drawerCol.querySelector('[class*="footerActions"], [class*="footArea"]')
           if (footer !== null) footer.appendChild(b)
           else f.appendChild(b)
           refresh = b
@@ -163,21 +216,7 @@ export function createDrawerChromeTask(toggleSidebar: () => void): ReconcilerTas
       }
     },
     dispose() {
-      if (ham !== null) {
-        ham.removeEventListener('click', onHamClick)
-        ham.remove()
-        ham = null
-      }
-      if (scrim !== null) {
-        scrim.removeEventListener('click', onScrimClick)
-        scrim.remove()
-        scrim = null
-      }
-      if (refresh !== null) {
-        refresh.removeEventListener('click', onRefreshClick)
-        refresh.remove()
-        refresh = null
-      }
+      removeChrome()
       frame = null
     },
   }
@@ -202,7 +241,7 @@ export function installOverlayInteractions(ctx: EffectHost, toggleSidebar: () =>
       typeof document !== 'undefined' && document.querySelector('[aria-modal="true"]') !== null
     const drawerEl = (): Element | null => {
       const f = findFrame()
-      return f === null ? null : f.firstElementChild
+      return f === null ? null : findDrawerCol(f)
     }
     const isNavTarget = (target: Element): boolean => {
       if (target.closest('button') !== null) return false
@@ -223,6 +262,9 @@ export function installOverlayInteractions(ctx: EffectHost, toggleSidebar: () =>
       }, 320)
     }
     const onKeyDown = (event: KeyboardEvent): void => {
+      // vendor 原生抽屉模式：开合/遮罩/Escape 全由 vendor 管，插件再 toggle 会双触发
+      // （capture 阶段先关、vendor 的 keydown 再开 -> 看起来"按 Esc 抽屉反而打开"）
+      if (vendorDrawerMode(findFrame())) return
       if (event.key !== 'Escape') return
       if (modalOpen()) return
       if (document.querySelector('[role="menu"], [role="dialog"]') !== null) return
@@ -235,6 +277,7 @@ export function installOverlayInteractions(ctx: EffectHost, toggleSidebar: () =>
      * - 第二击 click 生效 -> 打开会话 + 延迟收抽屉（工作区行同理，行为对齐）。
      */
     const onClick = (event: MouseEvent): void => {
+      if (vendorDrawerMode(findFrame())) return
       if (modalOpen()) return
       if (!drawerOpen()) return
       const target = event.target

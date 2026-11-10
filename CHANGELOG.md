@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.9] - 2026-11-11
+
+### Fixed
+- **移动端整页白屏（DSH 0.2.2-rc.1 兼容）**：升级到 0.2.2 后，手机上所有页面只剩左上角一个
+  hamburger、正文与输入框全部消失。根因是 **vendor 在 <768px 引入了原生抽屉**
+  （`frame[data-sidebar-drawer]`），frame 直系子从「侧栏 / 聊天列 / 右栏」重排成
+  `[drawerMask, sidebarCol, centerCol, rightbarCol, bottomRow, overlayLayer, leadingSeat]`；
+  本插件仍按 `:first-child` / `:nth-child(2)` / `:nth-child(3)` 钉网格列，
+  于是 `centerCol`（聊天列）被判成第 3 个子元素、钉进 `grid-template-columns: 1fr 0 0` 的
+  第三列（0 宽，x=390 视口外）——整页只剩浮层汉堡，其余全是白。
+  修复：
+  1. **让位 vendor 原生抽屉**：列布局/抽屉/遮罩/汉堡规则全部加 `:not([data-sidebar-drawer])`，
+     vendor 已开原生抽屉时插件不再接管（vendor 的侧栏浮层 + drawerMask + leadingSeat 汉堡已够用，
+     插件再注入一套只会双汉堡/双遮罩对打）；插件只保留安全区、帧高（键盘）、shell 层级等契约。
+  2. **抽屉本体改按语义类锚定**：新增 `findDrawerCol()`（`[class*="_sidebarCol"]`，排除
+     `_drawerMask`），不再假设首个直系子就是侧栏；列钉位改用 `[class*="_centerCol"]` /
+     `[class*="_rightbarCol"]`（0.2.2 的直系子顺序不可再依赖）。
+  3. **交互层让位**：vendor 原生抽屉模式下，插件的 Escape / 点外关闭 / 导航收抽屉全部停用
+     （vendor 自己处理，插件再 toggle 会双触发）；`drawerRefresh` 刷新按钮的侧栏底部定位也改走新锚。
+  4. **自检补齐**：canary 新增「vendor 原生抽屉 / 侧栏列锚」检查与 4 条选择器登记
+     （新增 `optional` 标记：仅特定视口渲染的 `_drawerMask` 缺失不告警）；MutationObserver
+     attributeFilter 补 `data-sidebar-drawer`，跨 768px 缩放时汉堡/遮罩能即时增删。
+
+### Compatibility
+- 验证矩阵（CDP，390×844 / 800×1024 / 1440×900）：390 由 vendor 原生抽屉接管（汉堡在 leadingSeat、
+  点遮罩可关、选中会话自动收抽屉），800 仍由插件 overlay 抽屉接管（44px 汉堡 + scrim），
+  桌面 1440 零影响（侧栏 280 + 聊天列 1160，无插件标记）。
+- 真机/浏览器：移动端欢迎页与既有会话页（含消息、composer、轮次导航）均正常渲染。
+
 ## [0.6.8] - 2026-10-24
 
 ### Fixed
