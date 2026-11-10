@@ -9,6 +9,9 @@
 
 **DSH Web 移动端 UI 完美适配插件** —— 整合多个移动端插件的最优设计，为 DeepSeek Harness 提供原生的移动端体验。
 
+> **DSH 0.2.2 适配（`>=0.1.7-rc.1`，0.2.2-rc.1 实测）**：0.2.2 在 <768px 引入 vendor 原生抽屉
+> （`frame[data-sidebar-drawer]`），插件已整体让位并改用语义类锚定（详见 CHANGELOG 0.6.9）。
+>
 > **DSH 0.1.7 兼容（`>=0.1.7-rc.1`）**：设置入口现在位于新版「插件页」（Plugins 页）的
 > `dsh-mobile-xc` 包内（`plugins.bundle.config`，与 modsearch / 官方 subagent 同款机制）；
 > 旧版「设置 → 插件」入口已随 0.1.7 设置系统重构移除。
@@ -39,6 +42,9 @@
 - **软告警机制**：兼容问题不阻塞使用，仅提示
 - **兜底降级**：极端情况下自动降级，保证可用
 - **第三方插件兼容**：已适配 dshmarket、dsh-better-sidebar 等
+- **vendor 原生抽屉让位（DSH ≥ 0.2.2）**：<768px 时 vendor 自带 `data-sidebar-drawer` 抽屉
+  （侧栏浮层 + drawerMask + leadingSeat 汉堡），插件自动停用自己的抽屉/遮罩/汉堡与列布局，
+  只保留安全区与键盘契约，避免双汉堡/双遮罩与移动端白屏
 
 ### 📲 PWA 支持
 - **官方黑鲸鱼图标**：使用 DSH 官方 favicon
@@ -50,6 +56,8 @@
 | 断点 | 行为 |
 |------|------|
 | ≤1023px | 移动端适配激活 |
+| <768px | DSH ≥ 0.2.2 走 vendor 原生抽屉，插件让位（仅保留安全区/键盘契约） |
+| 768–1023px | 插件 overlay 抽屉接管（44px 汉堡 + scrim） |
 | ≥1024px | 桌面模式，零影响 |
 
 与 DSH 内置 `SIDEBAR_AUTO_COLLAPSE=1024` 对齐，无缝切换。
@@ -86,7 +94,7 @@ npm install dsh-mobile-xc
 
 | 包 | 验证版本 | 状态 |
 |---|---|---|
-| DSH (vendor) | 0.1.1-rc.2 | ✅ 18 条 selector 映射 |
+| DSH (vendor) | 0.2.2-rc.1 | ✅ 32 条 selector 映射 |
 | dshmarket | 1.20.x | ✅ 导航死路修复 |
 | dsh-better-sidebar | 0.15.2 | ✅ 和平共存 |
 | dsh-token-usage | 0.2.16 | ✅ 已注册兼容 |

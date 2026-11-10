@@ -21,6 +21,11 @@ export interface SelectorEntry {
   reason: string
   /** 漂移时的兜底行为（必须可执行）。 */
   fallback: string
+  /**
+   * 仅在特定页面/视口状态渲染的选择器（如 <768px 才有的 vendor 抽屉遮罩）：
+   * 缺失不算失配、不进告警清单；仍然做语法/登记校验。
+   */
+  optional?: boolean
 }
 
 export const SELECTOR_MAP: SelectorEntry[] = [
@@ -221,6 +226,41 @@ export const SELECTOR_MAP: SelectorEntry[] = [
     usedBy: 'M7 轮次导航 rail 命中换算与焦点（rail-preview.ts）',
     reason: '两段式 tap 需以 frame 为命中换算坐标原点并用其内部 markPosition/scroller 定位；无语义锚',
     fallback: '若漂移：rail-preview 的 closest 失配 → 点击走 vendor 原逻辑（单击即跳，预览缺失但不报错）',
+  },
+
+  /* ---- 0.2.2-rc.1：vendor 在 <768px 引入原生抽屉，frame 直系子结构重排 ----
+     事故（0.6.8）：0.2.2 的 frame 直系子变成
+       [drawerMask, sidebarCol, centerCol, rightbarCol, bottomRow, overlayLayer, leadingSeat]
+     插件仍按 :first-child/:nth-child(2,3) 钉列 -> 聊天列(centerCol)被钉进 0 宽列 -> 移动端白屏。
+     改为按语义类后缀锚定；vendor 原生抽屉模式下插件整体让位（CSS :not([data-sidebar-drawer])）。 */
+  {
+    selector: '[class*="_centerCol"]',
+    dshVersion: '0.2.2-rc.1',
+    usedBy: 'M9 聊天列钉位（layout.css.ts，仅 vendor 非原生抽屉模式）',
+    reason: 'frame 直系子顺序已漂移（0.2.2 起含 drawerMask/leadingSeat），序号钉列会把聊天列推进 0 宽列；聊天列无 data-* 语义锚',
+    fallback: '若漂移：放弃该条钉列，接受 vendor 默认网格（页面仍完整可见）',
+  },
+  {
+    selector: '[class*="_rightbarCol"]',
+    dshVersion: '0.2.2-rc.1',
+    usedBy: 'M9 右栏钉位（layout.css.ts，仅 vendor 非原生抽屉模式）',
+    reason: '与 centerCol 同理：序号不再可靠；右栏无 data-* 语义锚',
+    fallback: '若漂移：放弃该条钉列，右栏回到 vendor 默认网格列',
+  },
+  {
+    selector: '[class*="_sidebarCol"]',
+    dshVersion: '0.2.2-rc.1',
+    usedBy: 'M9 抽屉本体定位（drawer.ts findDrawerCol）',
+    reason: '0.2.2 起 frame 首个直系子是 drawerMask（全屏遮罩）而不是侧栏，不能再拿 firstElementChild 当抽屉',
+    fallback: '回退 firstElementChild（排除 _drawerMask 后仍是旧版侧栏）',
+  },
+  {
+    selector: '[class*="_drawerMask"]',
+    dshVersion: '0.2.2-rc.1',
+    usedBy: 'M9 排除 vendor 抽屉遮罩（drawer.ts findDrawerCol）',
+    reason: '仅 <768px 原生抽屉模式渲染；用于把首个直系子（遮罩）与抽屉本体区分开',
+    fallback: '若漂移：抽屉定位回退 firstElementChild（旧版结构仍然正确）',
+    optional: true,
   },]
 
 export interface StructuralAnchors {
@@ -230,6 +270,10 @@ export interface StructuralAnchors {
   composerSlot: boolean
   /** frame 子结构形状：至少 3 个直系子元素（侧栏/聊天/details）。 */
   frameShape: boolean
+  /** vendor 原生抽屉模式（DSH >= 0.2.2，viewport < 768px）：插件抽屉/列布局整体让位。 */
+  vendorDrawer: boolean
+  /** 侧栏列锚可见（[class*="_sidebarCol"]）：抽屉定位与让位判定的前置条件。 */
+  drawerCol: boolean
   /**
    * 右列契约可见性：[data-rightbar-col] 锚或新/旧收起属性任一在位。
    * 0.1.5 起 vendor 将 data-details-collapsed 更名 data-rightbar-collapsed，
@@ -255,6 +299,8 @@ export function checkStructuralAnchors(doc: Document): StructuralAnchors {
     shellOverlay: overlay !== null,
     composerSlot: doc.querySelector('[data-slot="conversation.composer.bar"]') !== null,
     frameShape: frame !== null && frame.children.length >= 3,
+    vendorDrawer: frame !== null && frame.hasAttribute('data-sidebar-drawer'),
+    drawerCol: frame !== null && frame.querySelector(':scope > [class*="_sidebarCol"]') !== null,
     rightbarContract:
       frame !== null &&
       (frame.querySelector(':scope > [data-rightbar-col]') !== null ||
@@ -274,7 +320,7 @@ export function checkHashedSelectors(root: ParentNode = document): HashedCheck {
       found = false
     }
     if (found) hits++
-    else missing.push(entry)
+    else if (entry.optional !== true) missing.push(entry)
   }
   return { hits, declared: SELECTOR_MAP.length, missing }
 }
@@ -288,6 +334,11 @@ export function formatCanaryReport(
   if (!structural.shellOverlay) notes.push('缺少 [data-shell-overlay]（shell 结构可能是新版）')
   if (!structural.composerSlot) notes.push('缺少 composer data-slot（composer 可能是新版）')
   if (!structural.frameShape) notes.push('frame 直系子结构异常（抽屉定位可能失效）')
+  if (structural.vendorDrawer && !structural.drawerCol) {
+    notes.push('vendor 原生抽屉模式下缺少侧栏列锚 [class*="_sidebarCol"]（抽屉定位可能失效，插件已整体让位）')
+  } else if (!structural.vendorDrawer && !structural.drawerCol) {
+    notes.push('缺少侧栏列锚 [class*="_sidebarCol"]（抽屉定位可能失效，可能回退到首个直系子）')
+  }
   if (!structural.rightbarContract) notes.push('右列契约缺失（[data-rightbar-col]/data-rightbar-collapsed/data-details-collapsed 均不可见；遮罩与右抽屉状态可能失真）')
   if (hashed.missing.length > 0 && hashed.hits === 0) {
     // 一条都没命中：真正的结构失配，逐条列出
