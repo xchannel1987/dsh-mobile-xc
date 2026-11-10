@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.10] - 2026-11-11
+
+### Fixed
+- **移动端侧栏被遮罩盖住、侧栏条目点不动（0.6.9 回归）**：0.6.9 让位 vendor 原生抽屉后，
+  `misc.css` 里「抽屉内含 aria-modal 时抬升」的规则被 vendor 侧栏根节点**误触发**——0.2.2 起
+  侧栏根（`hHd-Xa_root`）在 <768px 抽屉态自身就带 `role="dialog"` + `aria-modal="true"`，
+  规则把它从 vendor 的 `z-index: 71` 压到 `50`，低于 vendor 遮罩 `drawerMask` 的 `70`：
+  侧栏虽然可见，点击却全落在遮罩上（观感=「有个遮罩，点不了侧栏」）。
+  修复：该规则加 `:not([data-sidebar-drawer])` 让位，原生抽屉模式下交还 vendor 层级
+  （侧栏 71 > 遮罩 70）；插件自管的 768–1023px 与老版本行为不变。
+  验证：CDP 390×844 打开抽屉后 `document.elementFromPoint(140,500)` 由 `drawerMask`
+  变为侧栏列表（`bhn1Oq_list`），侧栏条目可正常点击/跳转。
+
 ## [0.6.9] - 2026-11-11
 
 ### Fixed

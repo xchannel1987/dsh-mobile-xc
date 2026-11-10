@@ -10,7 +10,12 @@
 const LINES = [
   '@media (max-width: 1023px) {',
   '  /* ---- 设置/导出/目录选择对话框：抽屉内含 aria-modal 时解除 transform 陷阱并抬升 ---- */',
-  '  [data-mobile-nav="frame"] > [data-mobile-nav="drawer"]:has([aria-modal="true"]) {',
+  '  /* 0.2.2 让位：vendor 原生抽屉模式下，侧栏根节点自己就带 role="dialog" + aria-modal="true"',
+  '     （dsh-client-ui-sidebar 的 hHd-Xa_root），本规则会被它误触发 -> 把侧栏从 vendor 的 71',
+  '     压到 50，低于 vendor 遮罩 drawerMask 的 70，**遮罩盖住侧栏、点了没反应**（0.6.9 回归）。',
+  '     原生抽屉模式下 vendor 自己的层级（侧栏 71 > 遮罩 70）已经正确，此规则只服务插件接管',
+  '     的 768-1023px 与老版本，故加 :not([data-sidebar-drawer]) 让位。 */',
+  '  [data-mobile-nav="frame"]:not([data-sidebar-drawer]) > [data-mobile-nav="drawer"]:has([aria-modal="true"]) {',
   '    transform: none !important;',
   '    z-index: 50 !important;',
   '  }',
