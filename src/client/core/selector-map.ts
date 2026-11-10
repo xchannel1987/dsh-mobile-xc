@@ -158,9 +158,18 @@ export const SELECTOR_MAP: SelectorEntry[] = [
   {
     selector: '.CAgGvG_split',
     dshVersion: '0.1.5-rc.1',
-    usedBy: '移动端隐藏 open-in-app 打开资源管理器按钮（compat.css 精确规则）',
+    usedBy: '移动端隐藏 open-in-app 打开资源管理器按钮（compat.css，旧版哈希）',
     reason: '官方 dsh-client-ui-open-in-app split 容器哈希类，无 data-* 锚；仅会话页渲染',
     fallback: '若漂移：该按钮在移动端恢复可见（无害）',
+    optional: true,
+  },
+  {
+    selector: '.OMoRSG_split',
+    dshVersion: '0.2.2-rc.1',
+    usedBy: '移动端隐藏 open-in-app「在文件资源管理器/应用中打开」按钮组（compat.css）',
+    reason: '0.2.2 把 split 容器哈希从 CAgGvG_ 换成 OMoRSG_，且不再落在 utilities slot 内；无 data-* 语义锚',
+    fallback: '若漂移：按钮组在移动端恢复可见（点了无效果，无害）',
+    optional: true,
   },
   {
     selector: '.nL4_yW_moreButton',

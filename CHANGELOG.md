@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.11] - 2026-11-11
+
+### Fixed
+- **移动端软键盘：输入框"大部分时候"不跟着上移，留在键盘下面**：旧算法把键盘高度算成
+  `innerHeight - (visualViewport.offsetTop + height)`。iOS 为露出光标会先把**可视视口自己下滚**
+  （`offsetTop > 0`），减掉 offsetTop 后键盘高度被算成 0 → 判定「没有键盘」→ 完全不介入，
+  于是 composer 留在键盘下面（这就是"有时生效、大部分时候不生效"的来源）。
+  修复：键盘高度改用 `innerHeight - visualViewport.height`（与 offsetTop 无关）；帧高取
+  `visualViewport.height`，同时新增 `--dsh-xc-frame-top`（= offsetTop）让帧随可视视口一起下移，
+  帧底边恒等于可视区底边（= 键盘上沿）。
+
+- **移动端没隐藏「文件资源管理器」按钮组**：0.2.2 把 open-in-app 的 split 容器哈希从
+  `CAgGvG_split` 换成 `OMoRSG_split`，且不再落在 utilities slot 内，旧的隐藏规则整体失效。
+  修复：规则同时匹配新旧哈希，并去掉 slot 作用域（按 open-in-app 自有哈希类隐藏整个按钮组）。
+
+- **移动端设置页「页头 ↔ tab」间距过宽**：旧规则把刘海安全区
+  （`calc(10px + env(safe-area-inset-top))`，iPhone ≈ 57px）加在设置面板 `nav` 的 padding-top 上，
+  而 0.2.2 的页头与 tab 是 grid 的上下两行 → 多出整整一条安全区空白。
+  修复：安全区改加到面板顶边（`padding-top: env(safe-area-inset-top)`，box-sizing: border-box），
+  `nav` 的上下 padding 收成 6px。
+
 ## [0.6.10] - 2026-11-11
 
 ### Fixed

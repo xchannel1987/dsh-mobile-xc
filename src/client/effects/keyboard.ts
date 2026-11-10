@@ -24,19 +24,26 @@ export function installKeyboardInset(): () => void {
   let raf = 0
   let alive = true
 
-  const setFrame = (px: number | null): void => {
-    if (px === null) root.style.removeProperty('--dsh-xc-frame-h')
-    else root.style.setProperty('--dsh-xc-frame-h', Math.max(FRAME_MIN, Math.round(px)) + 'px')
+  const setFrame = (px: number | null, top = 0): void => {
+    if (px === null) {
+      root.style.removeProperty('--dsh-xc-frame-h')
+      root.style.removeProperty('--dsh-xc-frame-top')
+    } else {
+      root.style.setProperty('--dsh-xc-frame-h', Math.max(FRAME_MIN, Math.round(px)) + 'px')
+      root.style.setProperty('--dsh-xc-frame-top', Math.round(top) + 'px')
+    }
   }
 
   const apply = (): void => {
     if (!alive) return
     try {
-      // 可视区底边（相对布局视口顶边）：键盘在场时 < innerHeight；磁贴/工具条收起时 ≈ innerHeight
-      const visibleBottom = vv.offsetTop + vv.height
-      const keyboard = Math.round(window.innerHeight - visibleBottom)
+      // 键盘占位恒等于「布局视口高 - 可视视口高」——**不能减 offsetTop**：
+      // iOS 为把光标露出来会先把可视视口往下滚（offsetTop > 0），减掉它会让键盘高度算成 0，
+      // 于是"大部分时候不生效、输入框留在键盘下面"（0.6.10 及以前的实际症状）。
+      const keyboard = Math.round(window.innerHeight - vv.height)
       if (keyboard >= KEYBOARD_MIN) {
-        setFrame(visibleBottom)
+        // 帧高 = 可视视口高，帧顶下移 offsetTop：帧底边恒等于可视区底边（= 键盘上沿）
+        setFrame(vv.height, vv.offsetTop)
         // 供 CSS 判断键盘状态（底部安全区此时被键盘盖住，不需要再留白）
         if (root.dataset.xcKb !== '1') root.dataset.xcKb = '1'
         // 键盘期间清掉 WebKit 为露光标自己加的那笔滚动（这正是「关掉键盘回不去」的残留）
