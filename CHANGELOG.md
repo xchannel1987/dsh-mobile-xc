@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.14] - 2026-11-11
+
+### Fixed
+- **移动端设置页「页头 ↔ tab」间距仍然偏大**：0.6.11 只把安全区从 nav 移走，但 0.2.2 的
+  tab 行自身还有 vendor 的 `padding: 12px 16px 14px`，加上 nav 的 6px，标题底边到首个
+  tab 顶部实测仍有 **18px**。
+  修复（misc.css）：nav 上下 padding 收到 **2px**，并新增 `.VOzbGW_navList` 覆盖
+  （top 4px / bottom 8px）——实测标题底边到 tab 顶部 **18px → 6px**，内容区随之整体上移。
+  真机 390×844 实测：navTitle 0-48、nav 48-100（原 48-122）、首个 tab y=54（原 66）。
+
 ## [0.6.13] - 2026-11-11
 
 ### Changed
