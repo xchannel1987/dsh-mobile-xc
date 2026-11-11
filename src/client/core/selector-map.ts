@@ -164,6 +164,22 @@ export const SELECTOR_MAP: SelectorEntry[] = [
     optional: true,
   },
   {
+    selector: '.YDXeBa_projectRow',
+    dshVersion: '0.2.2-rc.1',
+    usedBy: '工作区行操作按钮（已归档会话/新建会话）按需显示（misc.css，仅触屏常显场景收回）',
+    reason: '0.2.2 在 (hover:none) 下对所有已展开工作区行常显 rowActions；行本身无 data-* 语义锚（role=treeitem 不唯一）',
+    fallback: '若漂移：按钮组回到 vendor 默认（展开即显示），无功能损害',
+    optional: true,
+  },
+  {
+    selector: '.YDXeBa_rowActions',
+    dshVersion: '0.2.2-rc.1',
+    usedBy: '同上：隐藏/显示工作区行操作按钮组（misc.css）',
+    reason: '操作按钮组容器无语义锚，只能按哈希类收口',
+    fallback: '若漂移：恢复 vendor 默认常显（无害）',
+    optional: true,
+  },
+  {
     selector: '.OMoRSG_split',
     dshVersion: '0.2.2-rc.1',
     usedBy: '移动端隐藏 open-in-app「在文件资源管理器/应用中打开」按钮组（compat.css）',

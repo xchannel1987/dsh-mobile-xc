@@ -23,6 +23,7 @@ import { installXcPluginCard } from './effects/plugin-card.ts'
 import { installPhoneChrome } from './effects/phone-chrome.ts'
 import { installComposerAutoCollapse } from './effects/composer.ts'
 import { installKeyboardInset } from './effects/keyboard.ts'
+import { installWorkspaceRowActions } from './effects/workspace-row-actions.ts'
 
 /**
  * 客户端上下文最小面（本地化类型）。原 @deepseek-ai/dsh-client-runtime 已从
@@ -249,6 +250,8 @@ window.__ModuleLoader__.load({
       installMobileEffect(ctx, 'dsh-mobile-xc: composer auto-collapse', () => installComposerAutoCollapse())
       // 5.1) 软键盘：按 visualViewport 收窄帧高 + 清掉 WebKit 的残余滚动（iOS 专属症状）
       installMobileEffect(ctx, 'dsh-mobile-xc: keyboard inset', () => installKeyboardInset())
+      // 5.2) 工作区行操作按钮：触屏下只有「点中的行」显示（收回 0.2.2 的展开即常显）
+      installMobileEffect(ctx, 'dsh-mobile-xc: workspace row actions', () => installWorkspaceRowActions())
 
       // 6) ?mobile-nav-debug=1 徽标（返回 disposer 由 effect 持有）
       ctx.effect(() =>

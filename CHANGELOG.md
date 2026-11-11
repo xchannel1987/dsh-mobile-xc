@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.12] - 2026-11-11
+
+### Fixed
+- **工作区行操作按钮（已归档会话 / 新建会话）在触屏上「展开即常显」**：0.2.2 的 vendor CSS 在
+  `@media (hover:none)` 下对所有已展开工作区行显示 `.YDXeBa_rowActions`（只有
+  `[aria-expanded=false]` 才隐藏），于是每展开一个工作区就露出一排按钮；0.2.1 以前是
+  `@media (hover:hover)` 语义，触屏上只有被点中的行（sticky `:hover`）才显示。
+  修复：新增 `effects/workspace-row-actions.ts` —— pointerdown 命中工作区行时给它打
+  `data-xc-ws-tapped`（并清掉其它行，点到别处即全部收起）；misc.css 只对「带标记的行 /
+  悬停行 / 行菜单打开」显示 `.YDXeBa_rowActions`，并用 `!important` 压过 vendor 的常显规则。
+  这样触屏上就是「点哪个工作区，只有那个工作区显示按钮」，与 0.2.1 以前一致。
+  selector-map 登记 `.YDXeBa_projectRow` / `.YDXeBa_rowActions`（optional，漂移即回默认常显）。
+
 ## [0.6.11] - 2026-11-11
 
 ### Fixed
