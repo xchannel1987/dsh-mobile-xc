@@ -142,6 +142,14 @@ export const SELECTOR_MAP: SelectorEntry[] = [
     fallback: '结构定位 body > .VOzbGW_overlay > [role="dialog"][aria-modal] 面板；不变式：全屏可用',
   },
   {
+    selector: '.VOzbGW_navList',
+    dshVersion: '0.2.2-rc.1',
+    usedBy: '设置页 tab 行内边距收紧（misc.css；页头与 tab 间距 18px -> 6px）',
+    reason: '0.2.2 设置面板为 grid 布局，tab 行自带 12px/14px padding，无 data-* 锚',
+    fallback: '若漂移：tab 行回到 vendor 默认内边距（仅多几像素，无功能影响）',
+    optional: true,
+  },
+  {
     selector: '.VOzbGW_nav',
     dshVersion: '0.2.0-rc.2',
     usedBy: 'M3 设置导航横向滚动条（nav 修复；0.2.0 经 .VOzbGW_panel:has(> nav) 重锚）',
