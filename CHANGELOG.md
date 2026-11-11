@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.13] - 2026-11-11
+
+### Changed
+- **移动端左侧抽屉：全局面板入口（插件 / 自动化任务 / 更多）合并成一行纯图标条**。
+  vendor 默认是竖排三行「16px 图标 + 文字」，每行 36px + 2px 间距 ≈ 112px，抽屉里太占高度。
+  现在（≤1023px）改成横向一行三个 **40×40 方形图标按钮**：隐藏 `.hHd-Xa_panelTitle` 文字
+  （按钮 `aria-label` 保留，读屏不受影响）、`.hHd-Xa_panelList` 由 column 改 row、
+  「更多」的锚点容器 `.hHd-Xa_moreAnchor` 收成不起列，工作区列表因此上移约 72px。
+  selector-map 登记 `.hHd-Xa_panelList / _panelRow / _panelTitle / _moreAnchor`（optional，
+  漂移即回到 vendor 默认竖排，无功能损害）。
+
 ## [0.6.12] - 2026-11-11
 
 ### Fixed
