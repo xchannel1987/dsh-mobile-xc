@@ -142,6 +142,14 @@ export const SELECTOR_MAP: SelectorEntry[] = [
     fallback: '结构定位 body > .VOzbGW_overlay > [role="dialog"][aria-modal] 面板；不变式：全屏可用',
   },
   {
+    selector: '.VOzbGW_header',
+    dshVersion: '0.2.2-rc.1',
+    usedBy: '设置页页头行高度收紧（misc.css；真机 82px -> 34px）',
+    reason: '页头行（打开配置文件 + 关闭）无 data-* 锚；真机被撑高后标题下方留白过大',
+    fallback: '若漂移：页头回到 vendor 默认高度（仅多留白，无功能影响）',
+    optional: true,
+  },
+  {
     selector: '.VOzbGW_navList',
     dshVersion: '0.2.2-rc.1',
     usedBy: '设置页 tab 行内边距收紧（misc.css；页头与 tab 间距 18px -> 6px）',

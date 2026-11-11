@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.15] - 2026-11-11
+
+### Fixed
+- **真机上设置页「设置」标题与 tab 之间仍有一大块空白（桌面/无刘海环境看不出来）**：
+  在 iPhone（safe-area-top ≈ 59）上，设置面板页头行被撑到 **82px** 高，而标题文字只占顶部
+  26px + 22px padding，下面空出 30 多像素；加上 tab 行，标题文字底边到 tab 顶部实测约 **42px**。
+  之前用无 safety-area 的无头 Chrome 验证（env()=0，页头行只有 48px）所以没看出来。
+  修复（misc.css）：页头行 `.VOzbGW_header` 改 `height:auto` + 自适应 padding
+  `max(6px, calc(18px - env(safe-area-inset-top)))`，`.VOzbGW_navTitle` 同步；
+  CDP 注入真机安全区（top 59 / bottom 34）实测：页头行 **82 → 34px**，标题底边到 tab 顶部
+  **~42 → 8px**；无刘海环境（env=0）页头行 46px、间距同样 8px，不会贴顶。
+  selector-map 登记 `.VOzbGW_header`（optional）。
+
+### Docs
+- 验证方法补充：涉及 safe-area 的移动端布局必须用 CDP `Emulation.setSafeAreaInsetsOverride`
+  注入真机 inset 再截图，否则 env()=0 会掩盖真机差异。
+
 ## [0.6.14] - 2026-11-11
 
 ### Fixed
