@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.16] - 2026-11-18
+
+### Fixed
+- **iOS 真机「点输入框大概率被键盘盖住、偶尔正常」——键盘检测升级为双模式**：
+  旧公式 `keyboard = innerHeight - visualViewport.height` 只覆盖「键盘不缩小布局视口」的
+  传统 iOS（模式 A）。WebKit 2026-08 起支持 `interactive-widget`（本插件 phone-chrome 为
+  Android 声明了 `resizes-content`），新 iOS 一旦兑现该声明，键盘会**直接缩小布局视口**
+  （模式 B）：innerHeight 与 vv.height 一起变小 → 差值恒为 0 → 判成「无键盘」完全不介入，
+  composer 留在键盘下面；旧系统忽略声明时又正常 → 正好是概率性表现。
+  修复（keyboard.ts 重写）：
+  ① 双模式检测：`max(innerHeight - 可视高, 静息布局高 - 可视高)`，第二项仅在编辑区聚焦时
+     采信（防工具栏收展误判）；静息高取无键盘时见过的最大 innerHeight，旋转后重播种。
+  ② 补 `window.resize` 监听（模式 B 的第一信号是布局视口变化，vv 事件可能不发）。
+  ③ focusin 后限时轮询（60/180/360/600/900/1300ms）兜底键盘动画期间 vv 事件晚到/漏发。
+  ④ vv.height/offsetTop 乘 scale 换算回布局 px：捏合缩放不再被误判成键盘。
+  ⑤ focusout 用 relatedTarget 判定焦点是否移到另一编辑区，避免输入区间切换误还原。
+  几何契约不变：帧高 = 可视区高、帧顶 = offsetTop，帧底边恒贴键盘上沿；误判「有键盘」而
+  实际没有时 frame = 整个布局视口，与不介入等价（天然安全）。
+  调试：键盘态新增 `html[data-xc-kb-px]`（检测到的键盘占位 px），配合 ?mobile-nav-debug=1 排查。
+
 ## [0.6.15] - 2026-11-11
 
 ### Fixed
